@@ -1,0 +1,75 @@
+/* club.css — Company Club page styles */
+.club-members-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--space-md);
+}
+
+.member-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    text-align: center;
+    transition: all var(--transition-base);
+}
+
+.member-card:hover {
+    border-color: var(--accent-indigo);
+    transform: translateY(-2px);
+}
+
+.member-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-full);
+    background: var(--gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 auto var(--space-sm);
+}
+
+.member-name {
+    font-weight: 600;
+    margin-bottom: var(--space-xs);
+}
+
+.member-meta {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.ranking-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-full);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.ranking-badge.rank-1 {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    color: #1a1a1a;
+}
+
+.ranking-badge.rank-2 {
+    background: linear-gradient(135deg, #d1d5db, #9ca3af);
+    color: #1a1a1a;
+}
+
+.ranking-badge.rank-3 {
+    background: linear-gradient(135deg, #d97706, #b45309);
+    color: #fff;
+}
+
+.ranking-badge.rank-other {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+}
