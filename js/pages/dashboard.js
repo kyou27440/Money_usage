@@ -17,15 +17,15 @@ const DashboardPage = {
         return `
         <div class="version-banner" style="background: linear-gradient(135deg, rgba(99,102,241,0.18), rgba(16,185,129,0.18)); border: 1px solid rgba(99,102,241,0.35); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
             <div style="display:flex;align-items:center;gap:12px;">
-                <span style="font-size:1.4rem;">✨</span>
+                <span style="font-size:1.4rem;">⛳</span>
                 <div>
-                    <div style="font-weight:700;font-size:0.98rem;color:var(--text-primary);">멤버 아바타 & 소속/유형 카드 디자인 산뜻하게 대폭 개편 완료</div>
-                    <div style="font-size:0.82rem;color:var(--text-muted);">'상시 • 소속' 정보 한 줄 가독성 극대화, 폰트 확대 및 프리미엄 글래스모피즘 적용</div>
+                    <div style="font-weight:700;font-size:0.98rem;color:var(--text-primary);">회사 모임 & 회비/게임 전용 장부 개편 완료 (팀원 공유 최적화)</div>
+                    <div style="font-size:0.82rem;color:var(--text-muted);">환전 및 개인 항목을 완전히 분리하고, 모임 회비, 스크린골프 순위 및 산출시트로 정돈</div>
                 </div>
             </div>
             <div style="text-align:right;">
-                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v5.2.0 (최신)</span>
-                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-22 14:25:00</div>
+                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v5.3.0 (최신)</span>
+                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-22 14:30:00</div>
             </div>
         </div>
 
@@ -37,10 +37,10 @@ const DashboardPage = {
                 <div class="card-sub">회비 입금 - 총 지출</div>
             </div>
             <div class="summary-card amber">
-                <div class="card-icon">💱</div>
-                <div class="card-label">환전 순 VND</div>
-                <div class="card-value">${Utils.formatVND(exchangeTotal.vnd)}</div>
-                <div class="card-sub">KRW: ${Utils.formatKRW(exchangeTotal.krw)}</div>
+                <div class="card-icon">📊</div>
+                <div class="card-label">저장된 산출 이력</div>
+                <div class="card-value">${(calcHistories || []).length}건 보관</div>
+                <div class="card-sub">날짜별 회비 산출 시트</div>
             </div>
             <div class="summary-card indigo">
                 <div class="card-icon">🎮</div>
