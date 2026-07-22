@@ -29,6 +29,14 @@ const ClubPage = {
         await this.renderTab();
     },
 
+    async switchTab(tabName) {
+        this.currentTab = tabName;
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.tab === tabName);
+        });
+        await this.renderTab();
+    },
+
     async renderTab() {
         const container = document.getElementById('club-tab-content');
         container.innerHTML = '<div class="text-center text-muted" style="padding:40px">⏳ 로딩 중...</div>';

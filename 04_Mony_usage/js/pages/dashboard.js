@@ -17,15 +17,15 @@ const DashboardPage = {
         return `
         <div class="version-banner" style="background: linear-gradient(135deg, rgba(99,102,241,0.18), rgba(16,185,129,0.18)); border: 1px solid rgba(99,102,241,0.35); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
             <div style="display:flex;align-items:center;gap:12px;">
-                <span style="font-size:1.4rem;">⛳</span>
+                <span style="font-size:1.4rem;">📱</span>
                 <div>
-                    <div style="font-weight:700;font-size:0.98rem;color:var(--text-primary);">회사 모임 & 회비/게임 전용 장부 개편 완료 (팀원 공유 최적화)</div>
-                    <div style="font-size:0.82rem;color:var(--text-muted);">환전 및 개인 항목을 완전히 분리하고, 모임 회비, 스크린골프 순위 및 산출시트로 정돈</div>
+                    <div style="font-weight:700;font-size:0.98rem;color:var(--text-primary);">모바일 전용 3대 심플 앱 & 홈화면 설치 PWA 적용 완료</div>
+                    <div style="font-size:0.82rem;color:var(--text-muted);">🎮 게임기록 | 🧮 회비산출 | 🏆 순위·성적 모바일 3대 심플 탭 & 스마트폰 앱 지원</div>
                 </div>
             </div>
             <div style="text-align:right;">
-                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v5.3.0 (최신)</span>
-                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-22 14:30:00</div>
+                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v5.4.0 (모바일 PWA 앱)</span>
+                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-22 14:35:00</div>
             </div>
         </div>
 
