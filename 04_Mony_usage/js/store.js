@@ -88,39 +88,67 @@ const Store = {
 
     // ─── 모임: 멤버 ───
 
+    _formatMemberForSave(memberData) {
+        const copy = { ...memberData };
+        const nick = copy.nickname ? copy.nickname.trim() : '';
+        let userMemo = copy.memo ? copy.memo.replace(/\[nick:[^\]]*\]/g, '').trim() : '';
+        if (nick) {
+            copy.memo = `[nick:${nick}] ${userMemo}`.trim();
+        } else {
+            copy.memo = userMemo;
+        }
+        return copy;
+    },
+
+    _parseMember(member) {
+        if (!member) return member;
+        let nick = member.nickname || '';
+        let memo = member.memo || '';
+        if (!nick && memo && memo.includes('[nick:')) {
+            const match = memo.match(/\[nick:([^\]]+)\]/);
+            if (match) {
+                nick = match[1];
+                memo = memo.replace(/\[nick:[^\]]*\]/g, '').trim();
+            }
+        }
+        return { ...member, nickname: nick, memo: memo };
+    },
+
     async getMembers(statusFilter = null) {
         let q = supabase.from('club_members').select('*').order('name');
         if (statusFilter) q = q.eq('status', statusFilter);
         const { data, error } = await q;
         if (error) { console.error('getMembers:', error); return []; }
-        return data;
+        return (data || []).map(m => this._parseMember(m));
     },
 
     async addMember(member) {
-        let { data, error } = await supabase.from('club_members').insert(member).select().single();
+        const prepared = this._formatMemberForSave(member);
+        let { data, error } = await supabase.from('club_members').insert(prepared).select().single();
         if (error && error.message && error.message.includes('nickname')) {
-            const copy = { ...member };
+            const copy = { ...prepared };
             delete copy.nickname;
             const res = await supabase.from('club_members').insert(copy).select().single();
             data = res.data;
             error = res.error;
         }
         if (error) { console.error('addMember:', error); return null; }
-        return data;
+        return this._parseMember(data);
     },
 
     async updateMember(id, updates) {
         updates.updated_at = new Date().toISOString();
-        let { data, error } = await supabase.from('club_members').update(updates).eq('id', id).select().single();
+        const prepared = this._formatMemberForSave(updates);
+        let { data, error } = await supabase.from('club_members').update(prepared).eq('id', id).select().single();
         if (error && error.message && error.message.includes('nickname')) {
-            const copy = { ...updates };
+            const copy = { ...prepared };
             delete copy.nickname;
             const res = await supabase.from('club_members').update(copy).eq('id', id).select().single();
             data = res.data;
             error = res.error;
         }
         if (error) { console.error('updateMember:', error); return null; }
-        return data;
+        return this._parseMember(data);
     },
 
     // ─── 모임: 게임 ───

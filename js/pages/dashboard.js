@@ -17,15 +17,15 @@ const DashboardPage = {
         return `
         <div class="version-banner" style="background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(16,185,129,0.15)); border: 1px solid rgba(99,102,241,0.3); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
             <div style="display:flex;align-items:center;gap:12px;">
-                <span style="font-size:1.4rem;">👥</span>
+                <span style="font-size:1.4rem;">✨</span>
                 <div>
-                    <div style="font-weight:700;font-size:0.98rem;color:var(--text-primary);">멤버 아바타 닉네임/아이디 표기 및 ✏️ 수정 기능 추가 완료</div>
-                    <div style="font-size:0.82rem;color:var(--text-muted);">성(강, 김) 단일 표기에서 닉네임/아이디(병선, 남수, 상국, SK 등) 아바타 표기 개편</div>
+                    <div style="font-weight:700;font-size:0.98rem;color:var(--text-primary);">긴 닉네임/아이디(Maximus 등) 영구 저장 및 자동 확충 캡슐 아바타 개편 완료</div>
+                    <div style="font-size:0.82rem;color:var(--text-muted);">글자 수 제한 없이 글자 길이에 맞춰 파란원 아바타가 늘어나며 100% 영구 저장 적용</div>
                 </div>
             </div>
             <div style="text-align:right;">
-                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v4.2.0 (최신)</span>
-                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-22 13:35:00</div>
+                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v4.3.0 (최신)</span>
+                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-22 13:40:00</div>
             </div>
         </div>
 
