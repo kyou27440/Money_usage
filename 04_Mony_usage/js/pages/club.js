@@ -411,7 +411,7 @@ const ClubPage = {
                     </div>
                 </div>
 
-                <!-- 회비 산출 계산 시트 (엑셀 스타일) -->
+                <!-- 등수별 회비 산출 시트 (엑셀 스타일) -->
                 <div class="card mb-lg">
                     <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
                         <span class="card-title">📊 등수별 회비 산출 시트</span>
@@ -424,15 +424,16 @@ const ClubPage = {
                     </div>
                 </div>
 
-                <!-- 단톡방 공유용 공지 문구 미리보기 -->
+                <!-- 산뜻하고 깔끔한 등수별 정산 요약 카드 시트 -->
                 <div class="card">
                     <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
-                        <span class="card-title">📱 모임 단톡방 공지 문구 (카카오톡/Zalo)</span>
-                        <button class="btn btn-emerald btn-sm" id="btn-copy-notice">📋 공지 문구 복사</button>
+                        <span class="card-title">✨ 최종 등수별 회비 납부 정산 시트</span>
+                        <button class="btn btn-emerald btn-sm" id="btn-copy-notice">📋 단톡방 공지 문구 복사</button>
                     </div>
-                    <div class="notice-preview-box" id="notice-preview-text">
-                        <!-- 동적 문구 생성 -->
+                    <div id="notice-preview-visual" class="fresh-summary-sheet">
+                        <!-- 동적 시트 렌더링 -->
                     </div>
+                    <textarea id="notice-raw-text" style="display:none;"></textarea>
                 </div>
             </div>
         `;
@@ -490,7 +491,8 @@ const ClubPage = {
         });
 
         document.getElementById('btn-copy-notice').addEventListener('click', () => {
-            const text = document.getElementById('notice-preview-text').innerText;
+            const rawElem = document.getElementById('notice-raw-text');
+            const text = rawElem ? rawElem.value : '';
             navigator.clipboard.writeText(text).then(() => {
                 Utils.toast('공지 문구가 클립보드에 복사되었습니다! 단톡방에 붙여넣으세요.', 'success');
             }).catch(() => {
@@ -588,9 +590,60 @@ const ClubPage = {
             });
         });
 
-        // 카톡/Zalo 공지 문구 업데이트
-        const noticeElem = document.getElementById('notice-preview-text');
-        if (noticeElem) {
+        // 🎨 산뜻하고 깔끔한 비주얼 카드 시트 생성
+        const visualElem = document.getElementById('notice-preview-visual');
+        const rawElem = document.getElementById('notice-raw-text');
+
+        if (visualElem) {
+            const medalClasses = ['rank-gold', 'rank-silver', 'rank-bronze'];
+            const medalIcons = ['🥇', '🥈', '🥉'];
+
+            const rankCardsHtml = ttlPerRank.map((amt, idx) => {
+                const rankClass = medalClasses[idx] || 'rank-normal';
+                const medalIcon = medalIcons[idx] || `${idx + 1}등`;
+
+                return `
+                    <div class="rank-fee-card ${rankClass}">
+                        <div class="rank-fee-header">
+                            <span class="rank-fee-badge">${medalIcon}</span>
+                            <span class="rank-fee-ratio">${ratios[idx]}% 배분</span>
+                        </div>
+                        <div class="rank-fee-amount">${Utils.formatVND(amt)}</div>
+                        <div class="rank-fee-sub">골프 ${Utils.formatVND(golfPerRank[idx])} + 식사 ${Utils.formatVND(mealPerRank[idx])}</div>
+                    </div>
+                `;
+            }).join('');
+
+            visualElem.innerHTML = `
+                <!-- 요약 배너 -->
+                <div class="fresh-summary-banner">
+                    <div class="banner-item">
+                        <span class="banner-label">👥 참석 인원</span>
+                        <span class="banner-value">${count}명</span>
+                    </div>
+                    <div class="banner-item">
+                        <span class="banner-label">⛳ 골프비 총액</span>
+                        <span class="banner-value">${Utils.formatVND(golfTotal)}</span>
+                    </div>
+                    <div class="banner-item">
+                        <span class="banner-label">🍜 식사비 MAX</span>
+                        <span class="banner-value">${Utils.formatVND(mealTotal)}</span>
+                    </div>
+                    <div class="banner-item highlight">
+                        <span class="banner-label">💵 총 정산 예상 비용</span>
+                        <span class="banner-value text-emerald">${Utils.formatVND(ttlGrandTotal)}</span>
+                    </div>
+                </div>
+
+                <!-- 등수별 정산 카드 그리드 -->
+                <div class="rank-fee-grid">
+                    ${rankCardsHtml}
+                </div>
+            `;
+        }
+
+        // 복사용 텍스트 업데이트
+        if (rawElem) {
             const medalIcons = ['🥇', '🥈', '🥉'];
             const rankLines = ttlPerRank.map((amt, idx) => {
                 const icon = medalIcons[idx] || `${idx + 1}등`;
@@ -598,7 +651,7 @@ const ClubPage = {
                 return `${rankText} (${ratios[idx]}%): ${Utils.formatVND(amt)}`;
             }).join('\n');
 
-            noticeElem.innerText = 
+            rawElem.value = 
 `⛳ [회사 모임 회비 산출 안내]
 ----------------------------------
 👥 참석 인원: ${count}명
