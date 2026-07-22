@@ -828,30 +828,19 @@ const ClubPage = {
             let tableHtml = `
                 <thead>
                     <tr>
-                        <th style="width:110px;text-align:center;">구분</th>
-                        ${Array.from({ length: count }, (_, i) => `<th style="text-align:center;">${i + 1}등</th>`).join('')}
-                        <th style="text-align:right;background:rgba(99,102,241,0.15);">Total</th>
+                        <th style="width:80px;text-align:center;">등수</th>
+                        <th style="width:110px;text-align:center;">배분 비율</th>
+                        <th style="text-align:right;">⛳ 골프비</th>
+                        <th style="text-align:right;">🍜 식사비</th>
+                        <th style="text-align:right;background:rgba(99,102,241,0.18);color:#38bdf8;">💰 최종 지불 회비</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="row-golf">
-                        <td class="cell-label">⛳ 골프비</td>
-                        ${golfPerRank.map(amt => `<td class="cell-val">${Utils.formatVND(amt)}</td>`).join('')}
-                        <td class="cell-total">${Utils.formatVND(golfTotal)}</td>
-                    </tr>
-                    <tr class="row-meal">
-                        <td class="cell-label">🍜 식사비</td>
-                        ${mealPerRank.map(amt => `<td class="cell-val">${Utils.formatVND(amt)}</td>`).join('')}
-                        <td class="cell-total">${Utils.formatVND(mealTotal)}</td>
-                    </tr>
-                    <tr class="row-ttl">
-                        <td class="cell-label-ttl">TTL (합계)</td>
-                        ${ttlPerRank.map(amt => `<td class="cell-val-ttl">${Utils.formatVND(amt)}</td>`).join('')}
-                        <td class="cell-total-ttl">${Utils.formatVND(ttlGrandTotal)}</td>
-                    </tr>
-                    <tr class="row-ratio">
-                        <td class="cell-label">배분 비율</td>
-                        ${ratios.map((r, i) => `
+                    ${Array.from({ length: count }, (_, i) => {
+                        const medal = i === 0 ? '🥇 ' : (i === 1 ? '🥈 ' : (i === 2 ? '🥉 ' : ''));
+                        return `
+                        <tr>
+                            <td class="cell-label" style="text-align:center;font-weight:700;color:var(--text-primary);">${medal}${i + 1}등</td>
                             <td class="cell-ratio">
                                 <div class="ratio-input-wrapper">
                                     <input type="text" 
@@ -859,7 +848,7 @@ const ClubPage = {
                                            pattern="[0-9.]*"
                                            class="ratio-input" 
                                            data-rank="${i}" 
-                                           value="${r}" 
+                                           value="${ratios[i] || 0}" 
                                            autocomplete="off" 
                                            autocorrect="off" 
                                            autocapitalize="off" 
@@ -872,10 +861,22 @@ const ClubPage = {
                                     <span class="percent-sign">%</span>
                                 </div>
                             </td>
-                        `).join('')}
-                        <td class="cell-total-ratio">${ratioSumFixed}%</td>
-                    </tr>
+                            <td class="cell-val calc-g-val-${i}" style="text-align:right;">${Utils.formatVND(golfPerRank[i])}</td>
+                            <td class="cell-val calc-m-val-${i}" style="text-align:right;">${Utils.formatVND(mealPerRank[i])}</td>
+                            <td class="cell-val-ttl calc-t-val-${i}" style="text-align:right;font-weight:700;color:#10b981;background:rgba(16,185,129,0.06);">${Utils.formatVND(ttlPerRank[i])}</td>
+                        </tr>
+                        `;
+                    }).join('')}
                 </tbody>
+                <tfoot>
+                    <tr style="background:rgba(30,41,59,0.85);font-weight:700;border-top:2px solid var(--border-color);">
+                        <td style="text-align:center;color:var(--text-primary);">합계 (Total)</td>
+                        <td class="cell-total-ratio" style="text-align:center;color:#38bdf8;">${ratioSumFixed}%</td>
+                        <td class="calc-g-ttl" style="text-align:right;color:var(--text-muted);">${Utils.formatVND(golfTotal)}</td>
+                        <td class="calc-m-ttl" style="text-align:right;color:var(--text-muted);">${Utils.formatVND(mealTotal)}</td>
+                        <td class="calc-t-ttl" style="text-align:right;color:#10b981;font-size:1.05rem;background:rgba(16,185,129,0.15);">${Utils.formatVND(ttlGrandTotal)}</td>
+                    </tr>
+                </tfoot>
             `;
 
             const tableElem = document.getElementById('calc-table');
@@ -897,20 +898,24 @@ const ClubPage = {
             // keepDOM 모드: 기존 input을 유지하며 계산 셀만 업데이트
             const tableElem = document.getElementById('calc-table');
             if (tableElem) {
-                const golfCells = tableElem.querySelectorAll('.row-golf .cell-val');
-                golfCells.forEach((c, idx) => { if (golfPerRank[idx] !== undefined) c.textContent = Utils.formatVND(golfPerRank[idx]); });
-                const golfTotalCell = tableElem.querySelector('.row-golf .cell-total');
-                if (golfTotalCell) golfTotalCell.textContent = Utils.formatVND(golfTotal);
+                for (let i = 0; i < count; i++) {
+                    const gCell = tableElem.querySelector(`.calc-g-val-${i}`);
+                    if (gCell) gCell.textContent = Utils.formatVND(golfPerRank[i]);
 
-                const mealCells = tableElem.querySelectorAll('.row-meal .cell-val');
-                mealCells.forEach((c, idx) => { if (mealPerRank[idx] !== undefined) c.textContent = Utils.formatVND(mealPerRank[idx]); });
-                const mealTotalCell = tableElem.querySelector('.row-meal .cell-total');
-                if (mealTotalCell) mealTotalCell.textContent = Utils.formatVND(mealTotal);
+                    const mCell = tableElem.querySelector(`.calc-m-val-${i}`);
+                    if (mCell) mCell.textContent = Utils.formatVND(mealPerRank[i]);
 
-                const ttlCells = tableElem.querySelectorAll('.row-ttl .cell-val-ttl');
-                ttlCells.forEach((c, idx) => { if (ttlPerRank[idx] !== undefined) c.textContent = Utils.formatVND(ttlPerRank[idx]); });
-                const ttlTotalCell = tableElem.querySelector('.row-ttl .cell-total-ttl');
-                if (ttlTotalCell) ttlTotalCell.textContent = Utils.formatVND(ttlGrandTotal);
+                    const tCell = tableElem.querySelector(`.calc-t-val-${i}`);
+                    if (tCell) tCell.textContent = Utils.formatVND(ttlPerRank[i]);
+                }
+                const gTtlCell = tableElem.querySelector('.calc-g-ttl');
+                if (gTtlCell) gTtlCell.textContent = Utils.formatVND(golfTotal);
+
+                const mTtlCell = tableElem.querySelector('.calc-m-ttl');
+                if (mTtlCell) mTtlCell.textContent = Utils.formatVND(mealTotal);
+
+                const tTtlCell = tableElem.querySelector('.calc-t-ttl');
+                if (tTtlCell) tTtlCell.textContent = Utils.formatVND(ttlGrandTotal);
 
                 const ratioTotalCell = tableElem.querySelector('.cell-total-ratio');
                 if (ratioTotalCell) ratioTotalCell.textContent = `${ratioSumFixed}%`;
