@@ -19,13 +19,13 @@ const DashboardPage = {
             <div style="display:flex;align-items:center;gap:12px;">
                 <span style="font-size:1.4rem;">🎯</span>
                 <div>
-                    <div style="font-weight:700;font-size:0.98rem;color:var(--text-primary);">인원수별(3~8명) 5대 황금 비율 프리셋 원터치 버튼 탑재 완료</div>
-                    <div style="font-size:0.82rem;color:var(--text-muted);">표준 차등형, 1/N 완만형, 승자 우대형, 꼴찌 부담형, 1등 면제형 5가지 비율 원터치 자동 적용</div>
+                    <div style="font-weight:700;font-size:0.98rem;color:var(--text-primary);">등수 비율 중복 0% & 초완만~극단 6단계 차등 비율 시스템 완성</div>
+                    <div style="font-size:0.82rem;color:var(--text-muted);">1등 < 2등 < 3등 엄격 증가 적용 / 초완만형, 완만형, 중등형, 강한형, 극단형, 면제형 6종 제공</div>
                 </div>
             </div>
             <div style="text-align:right;">
-                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v6.1.0 (5대 프리셋)</span>
-                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-22 15:30:00</div>
+                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v6.2.0 (중복 0% 6단계)</span>
+                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-22 15:35:00</div>
             </div>
         </div>
 
