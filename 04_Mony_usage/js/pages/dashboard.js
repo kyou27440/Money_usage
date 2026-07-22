@@ -17,15 +17,15 @@ const DashboardPage = {
         return `
         <div class="version-banner" style="background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(16,185,129,0.15)); border: 1px solid rgba(99,102,241,0.3); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
             <div style="display:flex;align-items:center;gap:12px;">
-                <span style="font-size:1.4rem;">✨</span>
+                <span style="font-size:1.4rem;">📊</span>
                 <div>
-                    <div style="font-weight:700;font-size:0.98rem;color:var(--text-primary);">긴 닉네임/아이디(Maximus 등) 영구 저장 및 자동 확충 캡슐 아바타 개편 완료</div>
-                    <div style="font-size:0.82rem;color:var(--text-muted);">글자 수 제한 없이 글자 길이에 맞춰 파란원 아바타가 늘어나며 100% 영구 저장 적용</div>
+                    <div style="font-weight:700;font-size:0.98rem;color:var(--text-primary);">회비 산출 시트 날짜별 이력 저장 ➔ 게임 기록 등수별 회비 지불금 자동 연동 반영 완료</div>
+                    <div style="font-size:0.82rem;color:var(--text-muted);">회비 산출 시트를 날짜별로 저장하고 게임 기록 탭에서 등수별 지불 금액 자동 산출 및 표시</div>
                 </div>
             </div>
             <div style="text-align:right;">
-                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v4.3.0 (최신)</span>
-                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-22 13:40:00</div>
+                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v5.0.0 (최신)</span>
+                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-22 14:15:00</div>
             </div>
         </div>
 

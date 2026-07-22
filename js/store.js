@@ -321,5 +321,64 @@ const Store = {
         const map = {};
         (data || []).forEach(s => { map[s.key] = s.value; });
         return map;
+    },
+
+    // ─── 모임: 회비 산출 시트 이력 관리 ───
+
+    _getLocalCalcHistory() {
+        try {
+            const raw = localStorage.getItem('club_calc_history_v1');
+            return raw ? JSON.parse(raw) : [];
+        } catch(e) {
+            return [];
+        }
+    },
+
+    _saveLocalCalcHistory(list) {
+        try {
+            localStorage.setItem('club_calc_history_v1', JSON.stringify(list));
+        } catch(e) {}
+    },
+
+    async saveCalcHistory(calcItem) {
+        calcItem.created_at = new Date().toISOString();
+        calcItem.id = calcItem.id || 'calc_' + Date.now();
+
+        let localList = this._getLocalCalcHistory();
+        localList = localList.filter(item => item.calc_date !== calcItem.calc_date);
+        localList.unshift(calcItem);
+        this._saveLocalCalcHistory(localList);
+
+        try {
+            const { data, error } = await supabase.from('club_calc_history').upsert(calcItem).select().single();
+            if (!error && data) return data;
+        } catch(e) {}
+
+        return calcItem;
+    },
+
+    async getCalcHistoryList() {
+        try {
+            const { data, error } = await supabase.from('club_calc_history').select('*').order('calc_date', { ascending: false });
+            if (!error && data && data.length > 0) return data;
+        } catch(e) {}
+
+        return this._getLocalCalcHistory();
+    },
+
+    async getCalcHistoryByDate(dateStr) {
+        const list = await this.getCalcHistoryList();
+        return list.find(item => item.calc_date === dateStr) || null;
+    },
+
+    async deleteCalcHistory(id) {
+        let localList = this._getLocalCalcHistory();
+        localList = localList.filter(item => item.id !== id);
+        this._saveLocalCalcHistory(localList);
+
+        try {
+            await supabase.from('club_calc_history').delete().eq('id', id);
+        } catch(e) {}
+        return true;
     }
 };

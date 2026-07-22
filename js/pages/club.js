@@ -46,6 +46,10 @@ const ClubPage = {
     // ─── 게임 기록 탭 ───
     async renderGames(container) {
         const games = await Store.getGames({ limit: 20 });
+        const calcHistories = await Store.getCalcHistoryList();
+        const calcMap = {};
+        (calcHistories || []).forEach(c => calcMap[c.calc_date] = c);
+
         this.gamesMap = {};
         games.forEach(g => this.gamesMap[g.id] = g);
 
@@ -56,20 +60,30 @@ const ClubPage = {
             </div>
             ${games.length === 0 ? '<div class="empty-state"><div class="empty-icon">⛳</div><p class="empty-text">아직 게임 기록이 없습니다</p></div>' : `
             <div class="table-wrapper"><table>
-                <thead><tr><th>날짜</th><th>장소</th><th>참여자 & 순위</th><th>비용</th><th style="text-align:center;">관리</th></tr></thead>
+                <thead><tr><th>날짜</th><th>장소</th><th>참여자 & 순위 (산출 지불금)</th><th>총 비용</th><th style="text-align:center;">관리</th></tr></thead>
                 <tbody>${games.map(g => {
+                    const calc = calcMap[g.game_date];
                     const parts = (g.club_game_participants || []).sort((a, b) => (a.ranking || 99) - (b.ranking || 99));
                     const partStr = parts.map(p => {
                         const rc = p.ranking <= 3 && p.ranking > 0 ? `rank-${p.ranking}` : 'rank-other';
-                        return `<span class="ranking-badge ${rc}">${p.ranking || '-'}</span> ${Utils.escapeHtml(p.club_members?.name || '?')}`;
+                        let feeStr = '';
+                        if (calc && p.ranking && calc.rank_amounts && calc.rank_amounts[p.ranking - 1] !== undefined) {
+                            feeStr = ` <span style="font-size:0.8rem;color:#10b981;font-weight:700;">(${Utils.formatVND(calc.rank_amounts[p.ranking - 1])})</span>`;
+                        }
+                        return `<span class="ranking-badge ${rc}">${p.ranking || '-'}</span> ${Utils.escapeHtml(p.club_members?.name || '?')}${feeStr}`;
                     }).join('&nbsp;&nbsp;');
                     const hasUnranked = parts.some(p => !p.ranking);
 
                     return `<tr>
-                        <td>${Utils.formatDateKR(g.game_date)}</td>
+                        <td>
+                            ${Utils.formatDateKR(g.game_date)}
+                            ${calc ? `<div style="margin-top:2px;"><span class="badge badge-income" style="font-size:0.72rem;padding:2px 6px;" title="${Utils.escapeHtml(calc.title || '산출시트')}">📊 산출금 연동</span></div>` : ''}
+                        </td>
                         <td>${Utils.escapeHtml(g.location)}</td>
                         <td>${partStr || '-'}</td>
-                        <td style="text-align:right">${Utils.formatVND(g.total_cost)}</td>
+                        <td style="text-align:right">
+                            ${calc ? `<div style="font-weight:700;color:#38bdf8;">${Utils.formatVND(calc.total_cost)}</div><div style="font-size:0.72rem;color:var(--text-muted);">산출시트 기준</div>` : Utils.formatVND(g.total_cost)}
+                        </td>
                         <td style="text-align:center;white-space:nowrap;">
                             <button class="btn ${hasUnranked ? 'btn-emerald' : 'btn-ghost'} btn-sm" onclick="ClubPage.openGameModal(${g.id})" style="margin-right:4px;">
                                 ${hasUnranked ? '🏆 순위 입력' : '✏️ 수정'}
@@ -114,11 +128,13 @@ const ClubPage = {
             `;
         }).join('');
 
+        const defaultDate = editGame ? editGame.game_date : Utils.today();
+
         Modal.open(editGame ? '🏆 게임 기록 & 순위 수정' : '⛳ 게임 기록 입력 (1차: 참석자 등록)', `
             <div class="form-grid">
                 <div class="form-group">
                     <label>게임 날짜</label>
-                    <input type="date" id="game-date" value="${editGame ? editGame.game_date : Utils.today()}">
+                    <input type="date" id="game-date" value="${defaultDate}">
                 </div>
                 <div class="form-group">
                     <label>장소</label>
@@ -129,6 +145,7 @@ const ClubPage = {
                     <input type="text" id="game-cost" value="${editGame ? Utils.formatVND(editGame.total_cost).replace('₫','').trim() : ''}" placeholder="예: 800000" inputmode="numeric">
                 </div>
             </div>
+            <div id="game-modal-calc-info"></div>
             <div class="form-group mt-md">
                 <label>👥 참석자 선택 및 순위 입력 <span style="font-size:0.8rem;color:#38bdf8;font-weight:normal;">(💡 1차로 참석자만 체크하고 저장 후, 나중에 순위를 넣으셔도 됩니다!)</span></label>
                 <div style="max-height:280px;overflow-y:auto;border:1px solid var(--border-color);border-radius:var(--radius-sm);padding:8px 12px;margin-top:6px;background:var(--bg-secondary);">
@@ -144,11 +161,44 @@ const ClubPage = {
             <button class="btn btn-primary" id="btn-save-game">${editGame ? '수정 완료' : '저장'}</button>
         `);
 
+        const checkAndRenderCalcNotice = async () => {
+            const dateVal = document.getElementById('game-date').value;
+            const calcInfoElem = document.getElementById('game-modal-calc-info');
+            if (!dateVal || !calcInfoElem) return;
+
+            const calc = await Store.getCalcHistoryByDate(dateVal);
+            if (calc) {
+                const rankSummary = (calc.rank_amounts || []).map((amt, idx) => `[${idx + 1}등: ${Utils.formatVND(amt)}]`).join('  ');
+                calcInfoElem.innerHTML = `
+                    <div style="padding:10px 14px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.35);border-radius:8px;margin-top:10px;">
+                        <div style="font-weight:700;color:#10b981;display:flex;align-items:center;gap:6px;">
+                            📊 [${calc.calc_date}] 회비 산출 시트 연동됨 (총 비용: ${Utils.formatVND(calc.total_cost)})
+                        </div>
+                        <div style="font-size:0.83rem;color:var(--text-primary);margin-top:4px;">
+                            💡 <strong>등수별 회비 지불금:</strong> ${rankSummary}
+                        </div>
+                    </div>
+                `;
+            } else {
+                calcInfoElem.innerHTML = `
+                    <div style="padding:8px 12px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;margin-top:10px;font-size:0.82rem;color:#f59e0b;">
+                        ⚠️ 해당 날짜(${dateVal})로 저장된 회비 산출 시트가 없습니다. [회비 산출 시트] 탭에서 [💾 이 날짜로 저장] 하시면 게임 기록에 지불 금액이 연동됩니다!
+                    </div>
+                `;
+            }
+        };
+
+        checkAndRenderCalcNotice();
+        document.getElementById('game-date').addEventListener('change', checkAndRenderCalcNotice);
+
         document.getElementById('btn-save-game').addEventListener('click', async () => {
+            const gameDate = document.getElementById('game-date').value;
+            const calc = await Store.getCalcHistoryByDate(gameDate);
+
             const game = {
-                game_date: document.getElementById('game-date').value,
+                game_date: gameDate,
                 location: document.getElementById('game-location').value.trim() || '스크린골프장',
-                total_cost: Utils.parseAmount(document.getElementById('game-cost').value),
+                total_cost: calc ? calc.total_cost : Utils.parseAmount(document.getElementById('game-cost').value),
                 memo: document.getElementById('game-memo').value.trim()
             };
             if (!game.game_date) { Utils.toast('날짜를 입력해주세요', 'error'); return; }
@@ -464,6 +514,27 @@ const ClubPage = {
     async renderCalculator(container) {
         container.innerHTML = `
             <div class="calc-sheet-container">
+                <!-- 날짜 및 이력 저장 컨트롤 카드 -->
+                <div class="card mb-lg" style="background: linear-gradient(135deg, rgba(30,41,59,0.95), rgba(15,23,42,0.95)); border: 1px solid rgba(99,102,241,0.35); box-shadow: 0 4px 16px rgba(0,0,0,0.2);">
+                    <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                        <span class="card-title" style="color:#38bdf8;font-size:1.05rem;">📅 회비 산출 시트 이력 관리 & 게임 일정 연동</span>
+                        <div style="display:flex;gap:8px;">
+                            <button class="btn btn-emerald btn-sm" id="btn-save-calc">💾 이 날짜로 산출 내역 저장</button>
+                            <button class="btn btn-ghost btn-sm" id="btn-history-calc">📜 저장 이력 보기</button>
+                        </div>
+                    </div>
+                    <div class="form-grid" style="grid-template-columns: 200px 1fr; gap:16px;">
+                        <div class="form-group">
+                            <label>산출 날짜 지정</label>
+                            <input type="date" id="calc-date" value="${this.calcState.date || Utils.today()}" class="calc-input-field" style="border-color:#38bdf8;font-weight:700;">
+                        </div>
+                        <div class="form-group">
+                            <label>모임/게임 타이틀 (메모)</label>
+                            <input type="text" id="calc-memo" value="${Utils.escapeHtml(this.calcState.memo || '스크린골프 및 식사 모임')}" placeholder="예: 07/22 4인 스크린" class="calc-input-field">
+                        </div>
+                    </div>
+                </div>
+
                 <!-- 헤더 및 입력 설정 -->
                 <div class="card mb-lg">
                     <div class="card-header">
@@ -535,6 +606,12 @@ const ClubPage = {
         const golfValInput = document.getElementById('calc-golf-val');
         const mealValInput = document.getElementById('calc-meal-val');
 
+        const dateInput = document.getElementById('calc-date');
+        const memoInput = document.getElementById('calc-memo');
+
+        if (dateInput) dateInput.addEventListener('change', (e) => this.calcState.date = e.target.value);
+        if (memoInput) memoInput.addEventListener('input', (e) => this.calcState.memo = e.target.value);
+
         countSelect.addEventListener('change', (e) => {
             const count = Number(e.target.value);
             this.calcState.count = count;
@@ -569,12 +646,49 @@ const ClubPage = {
             const count = this.calcState.count;
             const avg = Number((100 / count).toFixed(1));
             const ratios = new Array(count).fill(avg);
-            // 소수점 오차 조정
             const diff = 100 - (avg * count);
             if (diff !== 0) ratios[count - 1] = Number((ratios[count - 1] + diff).toFixed(1));
             this.calcState.ratios = ratios;
             this.updateCalcTable();
             Utils.toast('1/N 균등 배분 비율이 적용되었습니다', 'info');
+        });
+
+        document.getElementById('btn-save-calc').addEventListener('click', async () => {
+            const calcDate = document.getElementById('calc-date').value;
+            const calcMemo = document.getElementById('calc-memo').value.trim() || '스크린골프 모임';
+            if (!calcDate) { Utils.toast('날짜를 선택해주세요', 'error'); return; }
+
+            const { count, golfMode, golfVal, mealVal, ratios } = this.calcState;
+            const golfTotal = golfMode === 'per_person' ? golfVal * count : golfVal;
+            const mealTotal = mealVal;
+            const grandTotal = golfTotal + mealTotal;
+
+            const rankAmounts = [];
+            for (let i = 0; i < count; i++) {
+                const r = (ratios[i] || 0) / 100;
+                const gAmt = Math.round(golfTotal * r);
+                const mAmt = Math.round(mealTotal * r);
+                rankAmounts.push(gAmt + mAmt);
+            }
+
+            const item = {
+                calc_date: calcDate,
+                title: calcMemo,
+                player_count: count,
+                golf_mode: golfMode,
+                golf_val: golfVal,
+                meal_val: mealVal,
+                total_cost: grandTotal,
+                ratios: ratios,
+                rank_amounts: rankAmounts
+            };
+
+            await Store.saveCalcHistory(item);
+            Utils.toast(`[${calcDate}] 회비 산출 내역이 성공적으로 저장되었습니다!`, 'success');
+        });
+
+        document.getElementById('btn-history-calc').addEventListener('click', async () => {
+            this.openCalcHistoryModal();
         });
 
         document.getElementById('btn-copy-notice').addEventListener('click', () => {
@@ -586,6 +700,70 @@ const ClubPage = {
                 Utils.toast('복사 중 오류가 발생했습니다.', 'error');
             });
         });
+    },
+
+    async openCalcHistoryModal() {
+        const histories = await Store.getCalcHistoryList();
+        
+        const rows = (histories || []).map(h => `
+            <tr>
+                <td><strong>${Utils.formatDateKR(h.calc_date)}</strong></td>
+                <td>${Utils.escapeHtml(h.title || '스크린골프')}</td>
+                <td>${h.player_count}명</td>
+                <td style="text-align:right;font-weight:700;color:#38bdf8;">${Utils.formatVND(h.total_cost)}</td>
+                <td style="font-size:0.8rem;color:var(--text-muted);">
+                    ${(h.rank_amounts || []).map((amt, idx) => `${idx+1}등: ${Utils.formatVND(amt)}`).join('<br>')}
+                </td>
+                <td style="text-align:center;white-space:nowrap;">
+                    <button class="btn btn-emerald btn-sm" onclick="ClubPage.applyCalcHistory('${h.calc_date}')">불러오기</button>
+                    <button class="btn btn-danger btn-sm" onclick="ClubPage.deleteCalcHistory('${h.id}')" style="margin-left:4px;" title="삭제">🗑️</button>
+                </td>
+            </tr>
+        `).join('');
+
+        Modal.open('📜 저장된 회비 산출 이력', `
+            <div class="table-wrapper">
+                <table style="font-size:0.88rem;">
+                    <thead>
+                        <tr>
+                            <th>날짜</th>
+                            <th>타이틀</th>
+                            <th>인원</th>
+                            <th style="text-align:right;">총액</th>
+                            <th>등수별 금액</th>
+                            <th style="text-align:center;">관리</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows || '<tr><td colspan="6" class="text-muted" style="text-align:center;padding:20px;">저장된 산출 이력이 없습니다</td></tr>'}
+                    </tbody>
+                </table>
+            </div>
+        `, `<button class="btn btn-ghost" onclick="Modal.close()">닫기</button>`);
+    },
+
+    async applyCalcHistory(calcDate) {
+        const h = await Store.getCalcHistoryByDate(calcDate);
+        if (!h) return;
+        this.calcState.count = h.player_count;
+        this.calcState.golfMode = h.golf_mode;
+        this.calcState.golfVal = h.golf_val;
+        this.calcState.mealVal = h.meal_val;
+        this.calcState.ratios = h.ratios;
+        this.calcState.date = h.calc_date;
+        this.calcState.memo = h.title;
+        Modal.close();
+        this.renderTab();
+        Utils.toast(`[${calcDate}] 산출 내역을 불러왔습니다!`, 'success');
+    },
+
+    async deleteCalcHistory(id) {
+        const ok = await Modal.confirm('이력 삭제', '이 회비 산출 이력을 삭제하시겠습니까?');
+        if (ok) {
+            await Store.deleteCalcHistory(id);
+            Utils.toast('삭제되었습니다', 'success');
+            this.openCalcHistoryModal();
+        }
     },
 
     updateCalcTable(options = {}) {
