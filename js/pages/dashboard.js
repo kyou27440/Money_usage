@@ -17,15 +17,15 @@ const DashboardPage = {
         return `
         <div class="version-banner" style="background: linear-gradient(135deg, rgba(99,102,241,0.18), rgba(16,185,129,0.18)); border: 1px solid rgba(99,102,241,0.35); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
             <div style="display:flex;align-items:center;gap:12px;">
-                <span style="font-size:1.4rem;">📊</span>
+                <span style="font-size:1.4rem;">📱</span>
                 <div>
-                    <div style="font-weight:700;font-size:0.98rem;color:var(--text-primary);">회비 산출 시트 표 레이아웃 개편 (세로: 등수 / 가로: 골프비·식사비) 완료</div>
-                    <div style="font-size:0.82rem;color:var(--text-muted);">1등~N등 수직 배치로 모바일 세로 화면 가독성 극대화 및 수입/지출 지불금 명확화</div>
+                    <div style="font-weight:700;font-size:0.98rem;color:var(--text-primary);">전체 시트 & 탭 100% 수직 세로 카드 체제 개편 완료</div>
+                    <div style="font-size:0.82rem;color:var(--text-muted);">게임기록, 성적통계, 회비내역 및 산출시트 가로 표 철폐 ➔ 스마트폰 세로 화면 완전 최적화</div>
                 </div>
             </div>
             <div style="text-align:right;">
-                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v5.6.0 (최신)</span>
-                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-22 14:50:00</div>
+                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v5.7.0 (풀-세로 최적화)</span>
+                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-22 14:55:00</div>
             </div>
         </div>
 
