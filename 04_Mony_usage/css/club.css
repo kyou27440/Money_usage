@@ -192,15 +192,125 @@
     background: var(--bg-tertiary);
 }
 
-/* 공지 문구 미리보기 박스 */
-.notice-preview-box {
+/* 산뜻한 등수별 회비 납부 정산 시트 스타일 */
+.fresh-summary-sheet {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.fresh-summary-banner {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--space-sm);
     background: var(--bg-tertiary);
-    border: 1px dashed var(--border-color);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: var(--space-md);
-    font-family: 'Courier New', Courier, monospace;
-    white-space: pre-wrap;
-    line-height: 1.6;
+}
+
+.banner-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.banner-label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.banner-value {
+    font-size: 1.05rem;
+    font-weight: 700;
     color: var(--text-primary);
-    font-size: 0.88rem;
+}
+
+.banner-item.highlight {
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+}
+
+/* 등수별 카드리스트 그리드 */
+.rank-fee-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--space-md);
+}
+
+.rank-fee-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: transform var(--transition-base), border-color var(--transition-base);
+}
+
+.rank-fee-card:hover {
+    transform: translateY(-2px);
+}
+
+.rank-fee-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.rank-fee-badge {
+    font-weight: 800;
+    font-size: 1.05rem;
+}
+
+.rank-fee-ratio {
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+}
+
+.rank-fee-amount {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--accent-indigo);
+}
+
+.rank-fee-sub {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* 금/은/동 메달 특별 하이라이트 디자인 */
+.rank-fee-card.rank-gold {
+    border-color: #f59e0b;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, var(--bg-card) 100%);
+}
+
+.rank-fee-card.rank-gold .rank-fee-amount {
+    color: #f59e0b;
+}
+
+.rank-fee-card.rank-silver {
+    border-color: #9ca3af;
+    background: linear-gradient(135deg, rgba(156, 163, 175, 0.08) 0%, var(--bg-card) 100%);
+}
+
+.rank-fee-card.rank-silver .rank-fee-amount {
+    color: #e5e7eb;
+}
+
+.rank-fee-card.rank-bronze {
+    border-color: #d97706;
+    background: linear-gradient(135deg, rgba(217, 119, 6, 0.08) 0%, var(--bg-card) 100%);
+}
+
+.rank-fee-card.rank-bronze .rank-fee-amount {
+    color: #f97316;
 }
