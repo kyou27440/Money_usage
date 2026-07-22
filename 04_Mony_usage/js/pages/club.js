@@ -768,39 +768,30 @@ const ClubPage = {
     async openCalcHistoryModal() {
         const histories = await Store.getCalcHistoryList();
         
-        const rows = (histories || []).map(h => `
-            <tr>
-                <td><strong>${Utils.formatDateKR(h.calc_date)}</strong></td>
-                <td>${Utils.escapeHtml(h.title || '스크린골프')}</td>
-                <td>${h.player_count}명</td>
-                <td style="text-align:right;font-weight:700;color:#38bdf8;">${Utils.formatVND(h.total_cost)}</td>
-                <td style="font-size:0.8rem;color:var(--text-muted);">
-                    ${(h.rank_amounts || []).map((amt, idx) => `${idx+1}등: ${Utils.formatVND(amt)}`).join('<br>')}
-                </td>
-                <td style="text-align:center;white-space:nowrap;">
+        const cards = (histories || []).map(h => `
+            <div style="padding:12px 14px;background:rgba(30,41,59,0.9);border:1px solid rgba(99,102,241,0.25);border-radius:12px;margin-bottom:10px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                    <div>
+                        <strong style="color:#f8fafc;font-size:0.95rem;">📅 ${Utils.formatDateKR(h.calc_date)}</strong>
+                        <span style="font-size:0.82rem;color:var(--text-muted);margin-left:6px;">(${h.player_count}명 / ${Utils.escapeHtml(h.title || '스크린골프')})</span>
+                    </div>
+                    <div style="font-weight:700;color:#38bdf8;font-size:0.95rem;">
+                        ${Utils.formatVND(h.total_cost)}
+                    </div>
+                </div>
+                <div style="font-size:0.8rem;color:var(--text-muted);background:rgba(15,23,42,0.6);padding:6px 10px;border-radius:8px;margin-bottom:8px;">
+                    ${(h.rank_amounts || []).map((amt, idx) => `<strong>${idx+1}등:</strong> ${Utils.formatVND(amt)}`).join(' &nbsp;|&nbsp; ')}
+                </div>
+                <div style="display:flex;justify-content:flex-end;gap:6px;">
                     <button class="btn btn-emerald btn-sm" onclick="ClubPage.applyCalcHistory('${h.calc_date}')">불러오기</button>
-                    <button class="btn btn-danger btn-sm" onclick="ClubPage.deleteCalcHistory('${h.id}')" style="margin-left:4px;" title="삭제">🗑️</button>
-                </td>
-            </tr>
+                    <button class="btn btn-danger btn-sm" onclick="ClubPage.deleteCalcHistory('${h.id}')" title="삭제">🗑️ 삭제</button>
+                </div>
+            </div>
         `).join('');
 
         Modal.open('📜 저장된 회비 산출 이력', `
-            <div class="table-wrapper">
-                <table style="font-size:0.88rem;">
-                    <thead>
-                        <tr>
-                            <th>날짜</th>
-                            <th>타이틀</th>
-                            <th>인원</th>
-                            <th style="text-align:right;">총액</th>
-                            <th>등수별 금액</th>
-                            <th style="text-align:center;">관리</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${rows || '<tr><td colspan="6" class="text-muted" style="text-align:center;padding:20px;">저장된 산출 이력이 없습니다</td></tr>'}
-                    </tbody>
-                </table>
+            <div style="max-height:65vh;overflow-y:auto;">
+                ${cards || '<div class="text-muted" style="text-align:center;padding:20px;">저장된 산출 이력이 없습니다</div>'}
             </div>
         `, `<button class="btn btn-ghost" onclick="Modal.close()">닫기</button>`);
     },
@@ -867,62 +858,69 @@ const ClubPage = {
 
         // DOM 갱신 (keepDOM이 false이거나 없으면 전체 HTML 생성, true이면 숫치 셀만 업데이트하여 입력 포커스 유지)
         if (!options.keepDOM) {
-            let tableHtml = `
-                <thead>
-                    <tr>
-                        <th style="width:80px;text-align:center;">등수</th>
-                        <th style="width:110px;text-align:center;">배분 비율</th>
-                        <th style="text-align:right;">⛳ 골프비</th>
-                        <th style="text-align:right;">🍜 식사비</th>
-                        <th style="text-align:right;background:rgba(99,102,241,0.18);color:#38bdf8;">💰 최종 지불 회비</th>
-                    </tr>
-                </thead>
-                <tbody>
+            let cardsHtml = `
+                <div class="calc-rank-vertical-list" style="display:flex;flex-direction:column;gap:12px;">
                     ${Array.from({ length: count }, (_, i) => {
                         const medal = i === 0 ? '🥇 ' : (i === 1 ? '🥈 ' : (i === 2 ? '🥉 ' : ''));
                         return `
-                        <tr>
-                            <td class="cell-label" style="text-align:center;font-weight:700;color:var(--text-primary);">${medal}${i + 1}등</td>
-                            <td class="cell-ratio">
-                                <div class="ratio-input-wrapper">
-                                    <input type="text" 
-                                           inputmode="decimal" 
-                                           pattern="[0-9.]*"
-                                           class="ratio-input" 
-                                           data-rank="${i}" 
-                                           value="${ratios[i] || 0}" 
-                                           autocomplete="off" 
-                                           autocorrect="off" 
-                                           autocapitalize="off" 
-                                           spellcheck="false" 
-                                           aria-autocomplete="none"
-                                           data-lpignore="true" 
-                                           data-1p-ignore="true" 
-                                           data-form-type="other"
-                                           name="ratio_rank_${i}_noautofill">
-                                    <span class="percent-sign">%</span>
+                        <div class="calc-rank-card" style="padding:14px 16px;background:linear-gradient(135deg, rgba(30,41,59,0.95), rgba(15,23,42,0.98));border:1px solid rgba(99,102,241,0.3);border-radius:16px;box-shadow:0 4px 14px rgba(0,0,0,0.18);">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.08);">
+                                <span style="font-weight:800;font-size:1.1rem;color:#f8fafc;">${medal}${i + 1}등 회비 산출</span>
+                                <div style="display:flex;align-items:center;gap:6px;">
+                                    <span style="font-size:0.82rem;color:var(--text-muted);">배분 비율:</span>
+                                    <div class="ratio-input-wrapper" style="width:75px;">
+                                        <input type="text" 
+                                               inputmode="decimal" 
+                                               pattern="[0-9.]*"
+                                               class="ratio-input" 
+                                               data-rank="${i}" 
+                                               value="${ratios[i] || 0}" 
+                                               autocomplete="off" 
+                                               autocorrect="off" 
+                                               autocapitalize="off" 
+                                               spellcheck="false" 
+                                               aria-autocomplete="none"
+                                               data-lpignore="true" 
+                                               data-1p-ignore="true" 
+                                               data-form-type="other"
+                                               name="ratio_rank_${i}_noautofill">
+                                        <span class="percent-sign">%</span>
+                                    </div>
                                 </div>
-                            </td>
-                            <td class="cell-val calc-g-val-${i}" style="text-align:right;">${Utils.formatVND(golfPerRank[i])}</td>
-                            <td class="cell-val calc-m-val-${i}" style="text-align:right;">${Utils.formatVND(mealPerRank[i])}</td>
-                            <td class="cell-val-ttl calc-t-val-${i}" style="text-align:right;font-weight:700;color:#10b981;background:rgba(16,185,129,0.06);">${Utils.formatVND(ttlPerRank[i])}</td>
-                        </tr>
+                            </div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:10px 12px;background:rgba(15,23,42,0.75);border-radius:12px;text-align:center;border:1px solid rgba(255,255,255,0.05);">
+                                <div>
+                                    <div style="color:var(--text-muted);font-size:0.78rem;">⛳ 골프비</div>
+                                    <div class="calc-g-val-${i}" style="font-weight:700;color:#38bdf8;margin-top:3px;font-size:0.92rem;">${Utils.formatVND(golfPerRank[i])}</div>
+                                </div>
+                                <div>
+                                    <div style="color:var(--text-muted);font-size:0.78rem;">🍜 식사비</div>
+                                    <div class="calc-m-val-${i}" style="font-weight:700;color:#c084fc;margin-top:3px;font-size:0.92rem;">${Utils.formatVND(mealPerRank[i])}</div>
+                                </div>
+                                <div style="background:rgba(16,185,129,0.12);padding:4px;border-radius:8px;border:1px solid rgba(16,185,129,0.25);">
+                                    <div style="color:#34d399;font-size:0.78rem;font-weight:700;">💰 지불 회비</div>
+                                    <div class="calc-t-val-${i}" style="font-weight:800;color:#34d399;margin-top:2px;font-size:0.98rem;">${Utils.formatVND(ttlPerRank[i])}</div>
+                                </div>
+                            </div>
+                        </div>
                         `;
                     }).join('')}
-                </tbody>
-                <tfoot>
-                    <tr style="background:rgba(30,41,59,0.85);font-weight:700;border-top:2px solid var(--border-color);">
-                        <td style="text-align:center;color:var(--text-primary);">합계 (Total)</td>
-                        <td class="cell-total-ratio" style="text-align:center;color:#38bdf8;">${ratioSumFixed}%</td>
-                        <td class="calc-g-ttl" style="text-align:right;color:var(--text-muted);">${Utils.formatVND(golfTotal)}</td>
-                        <td class="calc-m-ttl" style="text-align:right;color:var(--text-muted);">${Utils.formatVND(mealTotal)}</td>
-                        <td class="calc-t-ttl" style="text-align:right;color:#10b981;font-size:1.05rem;background:rgba(16,185,129,0.15);">${Utils.formatVND(ttlGrandTotal)}</td>
-                    </tr>
-                </tfoot>
+
+                    <!-- 전체 총액 합계 바 -->
+                    <div style="padding:14px 16px;background:linear-gradient(135deg, rgba(99,102,241,0.2), rgba(16,185,129,0.2));border:1px solid rgba(99,102,241,0.4);border-radius:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:4px;">
+                        <span style="font-weight:800;font-size:1.05rem;color:#f8fafc;">📊 전체 총액 (Total)</span>
+                        <div style="display:flex;gap:12px;font-size:0.9rem;align-items:center;flex-wrap:wrap;">
+                            <span>비율: <strong class="cell-total-ratio" style="color:#38bdf8;">${ratioSumFixed}%</strong></span>
+                            <span>골프: <strong class="calc-g-ttl" style="color:#38bdf8;">${Utils.formatVND(golfTotal)}</strong></span>
+                            <span>식사: <strong class="calc-m-ttl" style="color:#c084fc;">${Utils.formatVND(mealTotal)}</strong></span>
+                            <span>총회비: <strong class="calc-t-ttl" style="color:#34d399;font-size:1.05rem;">${Utils.formatVND(ttlGrandTotal)}</strong></span>
+                        </div>
+                    </div>
+                </div>
             `;
 
             const tableElem = document.getElementById('calc-table');
-            if (tableElem) tableElem.innerHTML = tableHtml;
+            if (tableElem) tableElem.innerHTML = cardsHtml;
 
             // 비율 input 이벤트 바인딩 (input & change 반응)
             document.querySelectorAll('.ratio-input').forEach(input => {
