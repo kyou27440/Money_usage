@@ -17,15 +17,15 @@ const DashboardPage = {
         return `
         <div class="version-banner" style="background: linear-gradient(135deg, rgba(99,102,241,0.18), rgba(16,185,129,0.18)); border: 1px solid rgba(99,102,241,0.35); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
             <div style="display:flex;align-items:center;gap:12px;">
-                <span style="font-size:1.4rem;">💰</span>
+                <span style="font-size:1.4rem;">🎯</span>
                 <div>
-                    <div style="font-weight:700;font-size:0.98rem;color:var(--text-primary);">등수별 최종 지불 합계 금액 하이라이트 표시 적용 완료</div>
-                    <div style="font-size:0.82rem;color:var(--text-muted);">골프비 + 식사비 세부 항목 및 카드 하단에 [1등~N등 최종 지불 합계 금액] 선명하게 강조</div>
+                    <div style="font-weight:700;font-size:0.98rem;color:var(--text-primary);">인원수별(3~8명) 5대 황금 비율 프리셋 원터치 버튼 탑재 완료</div>
+                    <div style="font-size:0.82rem;color:var(--text-muted);">표준 차등형, 1/N 완만형, 승자 우대형, 꼴찌 부담형, 1등 면제형 5가지 비율 원터치 자동 적용</div>
                 </div>
             </div>
             <div style="text-align:right;">
-                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v6.0.0 (등수별 합계 탑재)</span>
-                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-22 15:10:00</div>
+                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v6.1.0 (5대 프리셋)</span>
+                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-22 15:30:00</div>
             </div>
         </div>
 

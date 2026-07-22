@@ -511,6 +511,74 @@ const ClubPage = {
         if (trend.length > 0) this.drawRankingChart(trend);
     },
 
+    ratioPresets: {
+        3: {
+            standard: { name: '⚡ 표준 차등형 (추천)', desc: '1등 15% / 2등 30% / 3등 55%', ratios: [15, 30, 55] },
+            mild:     { name: '⚖️ 1/N 완만형',     desc: '1등 25% / 2등 33% / 3등 42%', ratios: [25, 33, 42] },
+            winner:   { name: '⛳ 승자 우대형',     desc: '1등 10% / 2등 35% / 3등 55%', ratios: [10, 35, 55] },
+            loser:    { name: '🔥 꼴찌 부담형',     desc: '1등 20% / 2등 20% / 3등 60%', ratios: [20, 20, 60] },
+            free1st:  { name: '🏆 1등 면제형',     desc: '1등 0%  / 2등 40% / 3등 60%', ratios: [0, 40, 60] }
+        },
+        4: {
+            standard: { name: '⚡ 표준 차등형 (추천)', desc: '1등 10% / 2등 20% / 3등 30% / 4등 40%', ratios: [10, 20, 30, 40] },
+            mild:     { name: '⚖️ 1/N 완만형',     desc: '1등 18% / 2등 24% / 3등 26% / 4등 32%', ratios: [18, 24, 26, 32] },
+            winner:   { name: '⛳ 승자 우대형',     desc: '1등 5%  / 2등 20% / 3등 35% / 4등 40%', ratios: [5, 20, 35, 40] },
+            loser:    { name: '🔥 꼴찌 부담형',     desc: '1등 15% / 2등 15% / 3등 25% / 4등 45%', ratios: [15, 15, 25, 45] },
+            free1st:  { name: '🏆 1등 면제형',     desc: '1등 0%  / 2등 20% / 3등 35% / 4등 45%', ratios: [0, 20, 35, 45] }
+        },
+        5: {
+            standard: { name: '⚡ 표준 차등형 (추천)', desc: '1등 10% / 2등 15% / 3등 20% / 4등 25% / 5등 30%', ratios: [10, 15, 20, 25, 30] },
+            mild:     { name: '⚖️ 1/N 완만형',     desc: '1등 15% / 2등 18% / 3등 20% / 4등 22% / 5등 25%', ratios: [15, 18, 20, 22, 25] },
+            winner:   { name: '⛳ 승자 우대형',     desc: '1등 5%  / 2등 12% / 3등 18% / 4등 28% / 5등 37%', ratios: [5, 12, 18, 28, 37] },
+            loser:    { name: '🔥 꼴찌 부담형',     desc: '1등 12% / 2등 12% / 3등 16% / 4등 25% / 5등 35%', ratios: [12, 12, 16, 25, 35] },
+            free1st:  { name: '🏆 1등 면제형',     desc: '1등 0%  / 2등 15% / 3등 20% / 4등 28% / 5등 37%', ratios: [0, 15, 20, 28, 37] }
+        },
+        6: {
+            standard: { name: '⚡ 표준 차등형 (추천)', desc: '1등 5% / 2등 10% / 3등 15% / 4등 20% / 5등 23% / 6등 27%', ratios: [5, 10, 15, 20, 23, 27] },
+            mild:     { name: '⚖️ 1/N 완만형',     desc: '1등 12% / 2등 14% / 3등 16% / 4등 18% / 5등 19% / 6등 21%', ratios: [12, 14, 16, 18, 19, 21] },
+            winner:   { name: '⛳ 승자 우대형',     desc: '1등 3%  / 2등 8%  / 3등 14% / 4등 18% / 5등 24% / 6등 33%', ratios: [3, 8, 14, 18, 24, 33] },
+            loser:    { name: '🔥 꼴찌 부담형',     desc: '1등 10% / 2등 10% / 3등 15% / 4등 18% / 5등 22% / 6등 25%', ratios: [10, 10, 15, 18, 22, 25] },
+            free1st:  { name: '🏆 1등 면제형',     desc: '1등 0%  / 2등 8%  / 3등 15% / 4등 20% / 5등 25% / 6등 32%', ratios: [0, 8, 15, 20, 25, 32] }
+        },
+        7: {
+            standard: { name: '⚡ 표준 차등형 (추천)', desc: '1등 5% / 2등 8% / 3등 11% / 4등 14% / 5등 17% / 6등 21% / 7등 24%', ratios: [5, 8, 11, 14, 17, 21, 24] },
+            mild:     { name: '⚖️ 1/N 완만형',     desc: '1등 10% / 2등 12% / 3등 13% / 4등 14% / 5등 16% / 6등 17% / 7등 18%', ratios: [10, 12, 13, 14, 16, 17, 18] },
+            winner:   { name: '⛳ 승자 우대형',     desc: '1등 2%  / 2등 6%  / 3등 10% / 4등 14% / 5등 18% / 6등 23% / 7등 27%', ratios: [2, 6, 10, 14, 18, 23, 27] },
+            loser:    { name: '🔥 꼴찌 부담형',     desc: '1등 8%  / 2등 8%  / 3등 12% / 4등 14% / 5등 16% / 6등 20% / 7등 22%', ratios: [8, 8, 12, 14, 16, 20, 22] },
+            free1st:  { name: '🏆 1등 면제형',     desc: '1등 0%  / 2등 6%  / 3등 10% / 4등 15% / 5등 18% / 6등 23% / 7등 28%', ratios: [0, 6, 10, 15, 18, 23, 28] }
+        },
+        8: {
+            standard: { name: '⚡ 표준 차등형 (추천)', desc: '1등 4% / 2등 7% / 3등 9% / 4등 11% / 5등 13% / 6등 16% / 7등 19% / 8등 21%', ratios: [4, 7, 9, 11, 13, 16, 19, 21] },
+            mild:     { name: '⚖️ 1/N 완만형',     desc: '1등 8%  / 2등 10% / 3등 11% / 4등 12% / 5등 13% / 6등 14% / 7등 15% / 8등 17%', ratios: [8, 10, 11, 12, 13, 14, 15, 17] },
+            winner:   { name: '⛳ 승자 우대형',     desc: '1등 2%  / 2등 5%  / 3등 8%  / 4등 11% / 5등 14% / 6등 17% / 7등 20% / 8등 23%', ratios: [2, 5, 8, 11, 14, 17, 20, 23] },
+            loser:    { name: '🔥 꼴찌 부담형',     desc: '1등 6%  / 2등 6%  / 3등 9%  / 4등 11% / 5등 13% / 6등 16% / 7등 18% / 8등 21%', ratios: [6, 6, 9, 11, 13, 16, 18, 21] },
+            free1st:  { name: '🏆 1등 면제형',     desc: '1등 0%  / 2등 5%  / 3등 8%  / 4등 12% / 5등 15% / 6등 18% / 7등 20% / 8등 22%', ratios: [0, 5, 8, 12, 15, 18, 20, 22] }
+        }
+    },
+
+    getDefaultRatios(count) {
+        const countPresets = this.ratioPresets[count];
+        if (countPresets && countPresets.standard) {
+            return [...countPresets.standard.ratios];
+        }
+        const base = Math.floor(100 / count);
+        const res = new Array(count).fill(base);
+        let rem = 100 - (base * count);
+        for (let i = count - 1; i >= 0 && rem > 0; i--, rem--) {
+            res[i]++;
+        }
+        return res;
+    },
+
+    applyPreset(presetKey) {
+        const count = this.calcState.count;
+        const countPresets = this.ratioPresets[count] || this.ratioPresets[5];
+        const preset = countPresets[presetKey] || countPresets.standard;
+        this.calcState.ratios = [...preset.ratios];
+        this.updateCalcTable();
+        Utils.toast(`[${preset.name}] 비율 적용 완료! (${preset.desc})`, 'success');
+    },
+
     drawRankingChart(trendData) {
         const canvas = document.getElementById('ranking-trend-chart');
         if (!canvas) return;
@@ -554,27 +622,10 @@ const ClubPage = {
         ratios: [10, 15, 20, 25, 30]
     },
 
-    getDefaultRatios(count) {
-        const presets = {
-            3: [20, 30, 50],
-            4: [10, 20, 30, 40],
-            5: [10, 15, 20, 25, 30],
-            6: [5, 10, 15, 20, 23, 27],
-            7: [5, 8, 11, 14, 17, 21, 24],
-            8: [4, 7, 9, 11, 13, 16, 19, 21]
-        };
-        if (presets[count]) return [...presets[count]];
-        // 기본 그라데이션 자동 생성
-        const base = Math.floor(100 / count);
-        const res = new Array(count).fill(base);
-        let rem = 100 - (base * count);
-        for (let i = count - 1; i >= 0 && rem > 0; i--, rem--) {
-            res[i]++;
-        }
-        return res;
-    },
-
     async renderCalculator(container) {
+        const count = this.calcState.count;
+        const countPresets = this.ratioPresets[count] || this.ratioPresets[5];
+
         container.innerHTML = `
             <div class="calc-sheet-container">
                 <!-- 날짜 및 이력 저장 컨트롤 카드 -->
@@ -602,10 +653,6 @@ const ClubPage = {
                 <div class="card mb-lg">
                     <div class="card-header">
                         <span class="card-title">⛳ 스크린 & 식사비 회비 산출 설정</span>
-                        <div class="preset-badge-group">
-                            <button class="btn btn-sm btn-ghost" id="btn-preset-default">⚡ 기본 차등배분형</button>
-                            <button class="btn btn-sm btn-ghost" id="btn-preset-equal">⚖️ 1/N 균등배분</button>
-                        </div>
                     </div>
                     <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
                         <div class="form-group">
@@ -628,6 +675,16 @@ const ClubPage = {
                         <div class="form-group">
                             <label>식사비 총액 MAX (VND)</label>
                             <input type="text" id="calc-meal-val" value="${Utils.formatVND(this.calcState.mealVal).replace('₫','').trim()}" inputmode="numeric" class="calc-input-field">
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1; margin-top: 6px;">
+                            <label style="color:#38bdf8;font-weight:700;margin-bottom:8px;display:block;">🎯 ${count}인 게임 전용 추천 비율 프리셋 (클릭 시 원터치 적용)</label>
+                            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                <button class="btn btn-sm btn-emerald btn-preset-opt" data-preset="standard">${countPresets.standard.name}</button>
+                                <button class="btn btn-sm btn-ghost btn-preset-opt" data-preset="mild">${countPresets.mild.name}</button>
+                                <button class="btn btn-sm btn-ghost btn-preset-opt" data-preset="winner">${countPresets.winner.name}</button>
+                                <button class="btn btn-sm btn-ghost btn-preset-opt" data-preset="loser">${countPresets.loser.name}</button>
+                                <button class="btn btn-sm btn-ghost btn-preset-opt" data-preset="free1st">${countPresets.free1st.name}</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -679,7 +736,7 @@ const ClubPage = {
             const count = Number(e.target.value);
             this.calcState.count = count;
             this.calcState.ratios = this.getDefaultRatios(count);
-            this.updateCalcTable();
+            this.renderTab();
         });
 
         golfModeSelect.addEventListener('change', (e) => {
@@ -699,21 +756,18 @@ const ClubPage = {
             this.updateCalcTable();
         });
 
-        document.getElementById('btn-preset-default').addEventListener('click', () => {
-            this.calcState.ratios = this.getDefaultRatios(this.calcState.count);
-            this.updateCalcTable();
-            Utils.toast('기본 차등 배분 비율이 적용되었습니다', 'info');
-        });
-
-        document.getElementById('btn-preset-equal').addEventListener('click', () => {
-            const count = this.calcState.count;
-            const avg = Number((100 / count).toFixed(1));
-            const ratios = new Array(count).fill(avg);
-            const diff = 100 - (avg * count);
-            if (diff !== 0) ratios[count - 1] = Number((ratios[count - 1] + diff).toFixed(1));
-            this.calcState.ratios = ratios;
-            this.updateCalcTable();
-            Utils.toast('1/N 균등 배분 비율이 적용되었습니다', 'info');
+        // 프리셋 버튼 클릭 이벤트 바인딩
+        document.querySelectorAll('.btn-preset-opt').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const key = e.currentTarget.dataset.preset;
+                this.applyPreset(key);
+                document.querySelectorAll('.btn-preset-opt').forEach(b => {
+                    b.classList.remove('btn-emerald');
+                    b.classList.add('btn-ghost');
+                });
+                e.currentTarget.classList.remove('btn-ghost');
+                e.currentTarget.classList.add('btn-emerald');
+            });
         });
 
         document.getElementById('btn-save-calc').addEventListener('click', async () => {
