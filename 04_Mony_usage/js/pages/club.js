@@ -12,6 +12,7 @@ const ClubPage = {
             <button class="tab-btn" data-tab="members">👥 멤버 관리</button>
             <button class="tab-btn" data-tab="dues">💵 회비 관리</button>
             <button class="tab-btn" data-tab="ranking">🏆 순위/성적</button>
+            <button class="tab-btn" data-tab="calculator">🧮 회비 산출 시트</button>
         </div>
         <div id="club-tab-content"></div>`;
     },
@@ -36,6 +37,7 @@ const ClubPage = {
             case 'members': await this.renderMembers(container); break;
             case 'dues': await this.renderDues(container); break;
             case 'ranking': await this.renderRanking(container); break;
+            case 'calculator': await this.renderCalculator(container); break;
         }
     },
 
@@ -341,6 +343,274 @@ const ClubPage = {
                 }
             }
         });
+    },
+
+    // ─── 회비 산출 시트 탭 ───
+    calcState: {
+        count: 5,
+        golfMode: 'per_person', // 'per_person' 또는 'total'
+        golfVal: 550000,
+        mealVal: 2120000,
+        ratios: [10, 15, 20, 25, 30]
+    },
+
+    getDefaultRatios(count) {
+        const presets = {
+            3: [20, 30, 50],
+            4: [10, 20, 30, 40],
+            5: [10, 15, 20, 25, 30],
+            6: [5, 10, 15, 20, 23, 27],
+            7: [5, 8, 11, 14, 17, 21, 24],
+            8: [4, 7, 9, 11, 13, 16, 19, 21]
+        };
+        if (presets[count]) return [...presets[count]];
+        // 기본 그라데이션 자동 생성
+        const base = Math.floor(100 / count);
+        const res = new Array(count).fill(base);
+        let rem = 100 - (base * count);
+        for (let i = count - 1; i >= 0 && rem > 0; i--, rem--) {
+            res[i]++;
+        }
+        return res;
+    },
+
+    async renderCalculator(container) {
+        container.innerHTML = `
+            <div class="calc-sheet-container">
+                <!-- 헤더 및 입력 설정 -->
+                <div class="card mb-lg">
+                    <div class="card-header">
+                        <span class="card-title">⛳ 스크린 & 식사비 회비 산출 설정</span>
+                        <div class="preset-badge-group">
+                            <button class="btn btn-sm btn-ghost" id="btn-preset-default">⚡ 기본 차등배분형</button>
+                            <button class="btn btn-sm btn-ghost" id="btn-preset-equal">⚖️ 1/N 균등배분</button>
+                        </div>
+                    </div>
+                    <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                        <div class="form-group">
+                            <label>참여 인원수</label>
+                            <select id="calc-count" class="calc-input-field">
+                                ${[3, 4, 5, 6, 7, 8].map(n => `<option value="${n}" ${this.calcState.count === n ? 'selected' : ''}>${n}명</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>골프비 입력 방식</label>
+                            <select id="calc-golf-mode" class="calc-input-field">
+                                <option value="per_person" ${this.calcState.golfMode === 'per_person' ? 'selected' : ''}>1인당 스크린 비용</option>
+                                <option value="total" ${this.calcState.golfMode === 'total' ? 'selected' : ''}>총 스크린 비용</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label id="lbl-golf-val">${this.calcState.golfMode === 'per_person' ? '1인당 골프비 (VND)' : '총 골프비 (VND)'}</label>
+                            <input type="text" id="calc-golf-val" value="${Utils.formatVND(this.calcState.golfVal).replace('₫','').trim()}" inputmode="numeric" class="calc-input-field">
+                        </div>
+                        <div class="form-group">
+                            <label>식사비 총액 MAX (VND)</label>
+                            <input type="text" id="calc-meal-val" value="${Utils.formatVND(this.calcState.mealVal).replace('₫','').trim()}" inputmode="numeric" class="calc-input-field">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 회비 산출 계산 시트 (엑셀 스타일) -->
+                <div class="card mb-lg">
+                    <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+                        <span class="card-title">📊 등수별 회비 산출 시트</span>
+                        <div id="ratio-sum-status"></div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="calc-sheet-table" id="calc-table">
+                            <!-- 동적 렌더링 -->
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 단톡방 공유용 공지 문구 미리보기 -->
+                <div class="card">
+                    <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+                        <span class="card-title">📱 모임 단톡방 공지 문구 (카카오톡/Zalo)</span>
+                        <button class="btn btn-emerald btn-sm" id="btn-copy-notice">📋 공지 문구 복사</button>
+                    </div>
+                    <div class="notice-preview-box" id="notice-preview-text">
+                        <!-- 동적 문구 생성 -->
+                    </div>
+                </div>
+            </div>
+        `;
+
+        this.bindCalcEvents();
+        this.updateCalcTable();
+    },
+
+    bindCalcEvents() {
+        const countSelect = document.getElementById('calc-count');
+        const golfModeSelect = document.getElementById('calc-golf-mode');
+        const golfValInput = document.getElementById('calc-golf-val');
+        const mealValInput = document.getElementById('calc-meal-val');
+
+        countSelect.addEventListener('change', (e) => {
+            const count = Number(e.target.value);
+            this.calcState.count = count;
+            this.calcState.ratios = this.getDefaultRatios(count);
+            this.updateCalcTable();
+        });
+
+        golfModeSelect.addEventListener('change', (e) => {
+            this.calcState.golfMode = e.target.value;
+            document.getElementById('lbl-golf-val').textContent = 
+                this.calcState.golfMode === 'per_person' ? '1인당 골프비 (VND)' : '총 골프비 (VND)';
+            this.updateCalcTable();
+        });
+
+        golfValInput.addEventListener('input', () => {
+            this.calcState.golfVal = Utils.parseAmount(golfValInput.value);
+            this.updateCalcTable();
+        });
+
+        mealValInput.addEventListener('input', () => {
+            this.calcState.mealVal = Utils.parseAmount(mealValInput.value);
+            this.updateCalcTable();
+        });
+
+        document.getElementById('btn-preset-default').addEventListener('click', () => {
+            this.calcState.ratios = this.getDefaultRatios(this.calcState.count);
+            this.updateCalcTable();
+            Utils.toast('기본 차등 배분 비율이 적용되었습니다', 'info');
+        });
+
+        document.getElementById('btn-preset-equal').addEventListener('click', () => {
+            const count = this.calcState.count;
+            const avg = Number((100 / count).toFixed(1));
+            const ratios = new Array(count).fill(avg);
+            // 소수점 오차 조정
+            const diff = 100 - (avg * count);
+            if (diff !== 0) ratios[count - 1] = Number((ratios[count - 1] + diff).toFixed(1));
+            this.calcState.ratios = ratios;
+            this.updateCalcTable();
+            Utils.toast('1/N 균등 배분 비율이 적용되었습니다', 'info');
+        });
+
+        document.getElementById('btn-copy-notice').addEventListener('click', () => {
+            const text = document.getElementById('notice-preview-text').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                Utils.toast('공지 문구가 클립보드에 복사되었습니다! 단톡방에 붙여넣으세요.', 'success');
+            }).catch(() => {
+                Utils.toast('복사 중 오류가 발생했습니다.', 'error');
+            });
+        });
+    },
+
+    updateCalcTable() {
+        const { count, golfMode, golfVal, mealVal, ratios } = this.calcState;
+
+        // 골프 총액 계산
+        const golfTotal = golfMode === 'per_person' ? golfVal * count : golfVal;
+        const mealTotal = mealVal;
+        const ttlGrandTotal = golfTotal + mealTotal;
+
+        // 비율 합계 검증
+        const ratioSum = ratios.reduce((sum, r) => sum + (Number(r) || 0), 0);
+        const ratioSumFixed = Number(ratioSum.toFixed(1));
+        const statusElem = document.getElementById('ratio-sum-status');
+        if (statusElem) {
+            if (Math.abs(ratioSumFixed - 100) < 0.1) {
+                statusElem.innerHTML = `<span class="badge badge-income">✅ 배분 비율 합계: 100%</span>`;
+            } else {
+                statusElem.innerHTML = `<span class="badge badge-expense">⚠️ 합계: ${ratioSumFixed}% (100%로 맞추어 주세요)</span>`;
+            }
+        }
+
+        // 등수별 금액 계산
+        const golfPerRank = [];
+        const mealPerRank = [];
+        const ttlPerRank = [];
+
+        for (let i = 0; i < count; i++) {
+            const r = (ratios[i] || 0) / 100;
+            const gAmt = Math.round(golfTotal * r);
+            const mAmt = Math.round(mealTotal * r);
+            const tAmt = gAmt + mAmt;
+
+            golfPerRank.push(gAmt);
+            mealPerRank.push(mAmt);
+            ttlPerRank.push(tAmt);
+        }
+
+        // 엑셀 표 구성 HTML
+        let tableHtml = `
+            <thead>
+                <tr>
+                    <th style="width:110px;text-align:center;">구분</th>
+                    ${Array.from({ length: count }, (_, i) => `<th style="text-align:center;">${i + 1}등</th>`).join('')}
+                    <th style="text-align:right;background:rgba(99,102,241,0.15);">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="row-golf">
+                    <td class="cell-label">⛳ 골프비</td>
+                    ${golfPerRank.map(amt => `<td class="cell-val">${Utils.formatVND(amt)}</td>`).join('')}
+                    <td class="cell-total">${Utils.formatVND(golfTotal)}</td>
+                </tr>
+                <tr class="row-meal">
+                    <td class="cell-label">🍜 식사비</td>
+                    ${mealPerRank.map(amt => `<td class="cell-val">${Utils.formatVND(amt)}</td>`).join('')}
+                    <td class="cell-total">${Utils.formatVND(mealTotal)}</td>
+                </tr>
+                <tr class="row-ttl">
+                    <td class="cell-label-ttl">TTL (합계)</td>
+                    ${ttlPerRank.map(amt => `<td class="cell-val-ttl">${Utils.formatVND(amt)}</td>`).join('')}
+                    <td class="cell-total-ttl">${Utils.formatVND(ttlGrandTotal)}</td>
+                </tr>
+                <tr class="row-ratio">
+                    <td class="cell-label">배분 비율</td>
+                    ${ratios.map((r, i) => `
+                        <td class="cell-ratio">
+                            <div class="ratio-input-wrapper">
+                                <input type="number" step="0.5" class="ratio-input" data-rank="${i}" value="${r}">
+                                <span class="percent-sign">%</span>
+                            </div>
+                        </td>
+                    `).join('')}
+                    <td class="cell-total-ratio">${ratioSumFixed}%</td>
+                </tr>
+            </tbody>
+        `;
+
+        const tableElem = document.getElementById('calc-table');
+        if (tableElem) tableElem.innerHTML = tableHtml;
+
+        // 비율 input 이벤트 바인딩
+        document.querySelectorAll('.ratio-input').forEach(input => {
+            input.addEventListener('change', (e) => {
+                const idx = Number(e.target.dataset.rank);
+                const val = Number(e.target.value) || 0;
+                this.calcState.ratios[idx] = val;
+                this.updateCalcTable();
+            });
+        });
+
+        // 카톡/Zalo 공지 문구 업데이트
+        const noticeElem = document.getElementById('notice-preview-text');
+        if (noticeElem) {
+            const medalIcons = ['🥇', '🥈', '🥉'];
+            const rankLines = ttlPerRank.map((amt, idx) => {
+                const icon = medalIcons[idx] || `${idx + 1}등`;
+                const rankText = idx <= 2 ? `${icon} ${idx + 1}등` : `${idx + 1}등`;
+                return `${rankText} (${ratios[idx]}%): ${Utils.formatVND(amt)}`;
+            }).join('\n');
+
+            noticeElem.innerText = 
+`⛳ [회사 모임 회비 산출 안내]
+----------------------------------
+👥 참석 인원: ${count}명
+⛳ 스크린골프비: ${Utils.formatVND(golfTotal)} ${golfMode === 'per_person' ? `(1인당 ${Utils.formatVND(golfVal)})` : ''}
+🍜 식사비 (MAX): ${Utils.formatVND(mealTotal)}
+💵 총 예상 비용: ${Utils.formatVND(ttlGrandTotal)}
+
+[등수별 회비 납부 예상 금액]
+${rankLines}
+----------------------------------
+※ 게임 종료 후 최종 순위에 따라 상기 금액을 회비 계좌로 입금해 주세요! 🙏`;
+        }
     }
 };
 
