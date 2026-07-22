@@ -132,6 +132,18 @@ const Store = {
         return g;
     },
 
+    async updateGame(id, game, participants) {
+        const { data: g, error: ge } = await supabase.from('club_games').update(game).eq('id', id).select().single();
+        if (ge) { console.error('updateGame:', ge); return null; }
+        await supabase.from('club_game_participants').delete().eq('game_id', id);
+        if (participants && participants.length > 0) {
+            const parts = participants.map(p => ({ ...p, game_id: id }));
+            const { error: pe } = await supabase.from('club_game_participants').insert(parts);
+            if (pe) console.error('updateGameParticipants:', pe);
+        }
+        return g;
+    },
+
     async deleteGame(id) {
         const { error } = await supabase.from('club_games').delete().eq('id', id);
         if (error) { console.error('deleteGame:', error); return false; }

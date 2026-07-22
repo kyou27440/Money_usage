@@ -41,9 +41,14 @@ const ClubPage = {
         }
     },
 
+    gamesMap: {},
+
     // ─── 게임 기록 탭 ───
     async renderGames(container) {
         const games = await Store.getGames({ limit: 20 });
+        this.gamesMap = {};
+        games.forEach(g => this.gamesMap[g.id] = g);
+
         container.innerHTML = `
             <div class="section-header">
                 <span class="section-title">게임 기록</span>
@@ -51,19 +56,26 @@ const ClubPage = {
             </div>
             ${games.length === 0 ? '<div class="empty-state"><div class="empty-icon">⛳</div><p class="empty-text">아직 게임 기록이 없습니다</p></div>' : `
             <div class="table-wrapper"><table>
-                <thead><tr><th>날짜</th><th>장소</th><th>참여자 & 순위</th><th>비용</th><th>삭제</th></tr></thead>
+                <thead><tr><th>날짜</th><th>장소</th><th>참여자 & 순위</th><th>비용</th><th style="text-align:center;">관리</th></tr></thead>
                 <tbody>${games.map(g => {
                     const parts = (g.club_game_participants || []).sort((a, b) => (a.ranking || 99) - (b.ranking || 99));
                     const partStr = parts.map(p => {
-                        const rc = p.ranking <= 3 ? `rank-${p.ranking}` : 'rank-other';
+                        const rc = p.ranking <= 3 && p.ranking > 0 ? `rank-${p.ranking}` : 'rank-other';
                         return `<span class="ranking-badge ${rc}">${p.ranking || '-'}</span> ${Utils.escapeHtml(p.club_members?.name || '?')}`;
                     }).join('&nbsp;&nbsp;');
+                    const hasUnranked = parts.some(p => !p.ranking);
+
                     return `<tr>
                         <td>${Utils.formatDateKR(g.game_date)}</td>
                         <td>${Utils.escapeHtml(g.location)}</td>
                         <td>${partStr || '-'}</td>
                         <td style="text-align:right">${Utils.formatVND(g.total_cost)}</td>
-                        <td><button class="btn btn-icon btn-sm" onclick="ClubPage.deleteGame(${g.id})">🗑️</button></td>
+                        <td style="text-align:center;white-space:nowrap;">
+                            <button class="btn ${hasUnranked ? 'btn-emerald' : 'btn-ghost'} btn-sm" onclick="ClubPage.openGameModal(${g.id})" style="margin-right:4px;">
+                                ${hasUnranked ? '🏆 순위 입력' : '✏️ 수정'}
+                            </button>
+                            <button class="btn btn-icon btn-sm" onclick="ClubPage.deleteGame(${g.id})" title="삭제">🗑️</button>
+                        </td>
                     </tr>`;
                 }).join('')}</tbody>
             </table></div>`}`;
@@ -71,44 +83,65 @@ const ClubPage = {
         document.getElementById('btn-add-game').addEventListener('click', () => this.openGameModal());
     },
 
-    async openGameModal() {
+    async openGameModal(gameId = null) {
+        const editGame = gameId ? this.gamesMap[gameId] : null;
         const members = await Store.getMembers('active');
-        const memberChecks = members.map(m => `
-            <div style="display:flex;align-items:center;gap:8px;padding:4px 0">
-                <input type="checkbox" id="gm-${m.id}" value="${m.id}" class="game-member-check">
-                <label for="gm-${m.id}" style="flex:1">${Utils.escapeHtml(m.name)} <span class="badge badge-${m.member_type}" style="margin-left:4px">${m.member_type === 'regular' ? '상시' : '출장'}</span></label>
-                <input type="number" id="gr-${m.id}" placeholder="순위" min="1" max="8" style="width:70px" class="game-rank-input">
-            </div>
-        `).join('');
 
-        Modal.open('게임 기록 입력', `
+        // 기존 참여자 맵 생성 (member_id -> ranking)
+        const partMap = {};
+        if (editGame && editGame.club_game_participants) {
+            editGame.club_game_participants.forEach(p => {
+                partMap[p.member_id] = p.ranking;
+            });
+        }
+
+        const memberChecks = members.map(m => {
+            const isChecked = editGame ? (partMap[m.id] !== undefined) : false;
+            const rankVal = editGame && partMap[m.id] !== undefined && partMap[m.id] !== null ? partMap[m.id] : '';
+
+            return `
+                <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-color);">
+                    <input type="checkbox" id="gm-${m.id}" value="${m.id}" class="game-member-check" ${isChecked ? 'checked' : ''}>
+                    <label for="gm-${m.id}" style="flex:1;cursor:pointer;font-weight:600;">
+                        ${Utils.escapeHtml(m.name)} 
+                        <span class="badge badge-${m.member_type}" style="margin-left:4px">${m.member_type === 'regular' ? '상시' : '출장'}</span>
+                    </label>
+                    <div style="display:flex;align-items:center;gap:4px;">
+                        <span style="font-size:0.8rem;color:var(--text-muted);">순위:</span>
+                        <input type="number" id="gr-${m.id}" placeholder="나중에 입력 가능" min="1" max="10" value="${rankVal}" style="width:110px;text-align:center;" class="game-rank-input">
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        Modal.open(editGame ? '🏆 게임 기록 & 순위 수정' : '⛳ 게임 기록 입력 (1차: 참석자 등록)', `
             <div class="form-grid">
                 <div class="form-group">
                     <label>게임 날짜</label>
-                    <input type="date" id="game-date" value="${Utils.today()}">
+                    <input type="date" id="game-date" value="${editGame ? editGame.game_date : Utils.today()}">
                 </div>
                 <div class="form-group">
                     <label>장소</label>
-                    <input type="text" id="game-location" value="스크린골프장">
+                    <input type="text" id="game-location" value="${editGame ? Utils.escapeHtml(editGame.location) : '스크린골프장'}">
                 </div>
                 <div class="form-group">
                     <label>총 비용 (VND)</label>
-                    <input type="text" id="game-cost" placeholder="예: 800000" inputmode="numeric">
+                    <input type="text" id="game-cost" value="${editGame ? Utils.formatVND(editGame.total_cost).replace('₫','').trim() : ''}" placeholder="예: 800000" inputmode="numeric">
                 </div>
             </div>
             <div class="form-group mt-md">
-                <label>참여자 & 순위 (체크 후 순위 입력)</label>
-                <div style="max-height:250px;overflow-y:auto;border:1px solid var(--border-color);border-radius:var(--radius-sm);padding:8px;margin-top:4px">
+                <label>👥 참석자 선택 및 순위 입력 <span style="font-size:0.8rem;color:#38bdf8;font-weight:normal;">(💡 1차로 참석자만 체크하고 저장 후, 나중에 순위를 넣으셔도 됩니다!)</span></label>
+                <div style="max-height:280px;overflow-y:auto;border:1px solid var(--border-color);border-radius:var(--radius-sm);padding:8px 12px;margin-top:6px;background:var(--bg-secondary);">
                     ${members.length > 0 ? memberChecks : '<p class="text-muted">먼저 멤버를 추가해주세요</p>'}
                 </div>
             </div>
             <div class="form-group mt-md">
                 <label>메모</label>
-                <input type="text" id="game-memo" placeholder="메모 (선택)">
+                <input type="text" id="game-memo" value="${editGame ? Utils.escapeHtml(editGame.memo || '') : ''}" placeholder="메모 (선택)">
             </div>
         `, `
             <button class="btn btn-ghost" onclick="Modal.close()">취소</button>
-            <button class="btn btn-primary" id="btn-save-game">저장</button>
+            <button class="btn btn-primary" id="btn-save-game">${editGame ? '수정 완료' : '저장'}</button>
         `);
 
         document.getElementById('btn-save-game').addEventListener('click', async () => {
@@ -119,16 +152,26 @@ const ClubPage = {
                 memo: document.getElementById('game-memo').value.trim()
             };
             if (!game.game_date) { Utils.toast('날짜를 입력해주세요', 'error'); return; }
+
             const participants = [];
             document.querySelectorAll('.game-member-check:checked').forEach(cb => {
                 const mid = Number(cb.value);
-                const rank = Number(document.getElementById(`gr-${mid}`).value) || null;
+                const rankVal = document.getElementById(`gr-${mid}`).value.trim();
+                const rank = rankVal !== '' ? Number(rankVal) : null;
                 participants.push({ member_id: mid, ranking: rank });
             });
+
             if (participants.length === 0) { Utils.toast('참여자를 선택해주세요', 'error'); return; }
-            const result = await Store.addGame(game, participants);
+
+            let result;
+            if (editGame) {
+                result = await Store.updateGame(editGame.id, game, participants);
+            } else {
+                result = await Store.addGame(game, participants);
+            }
+
             if (result) {
-                Utils.toast('게임이 기록되었습니다', 'success');
+                Utils.toast(editGame ? '게임 기록 및 순위가 수정되었습니다!' : '게임 기록이 저장되었습니다!', 'success');
                 Modal.close();
                 this.renderTab();
             }
