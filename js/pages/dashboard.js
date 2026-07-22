@@ -17,15 +17,15 @@ const DashboardPage = {
         return `
         <div class="version-banner" style="background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(16,185,129,0.15)); border: 1px solid rgba(99,102,241,0.3); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
             <div style="display:flex;align-items:center;gap:12px;">
-                <span style="font-size:1.4rem;">🎮</span>
+                <span style="font-size:1.4rem;">👥</span>
                 <div>
-                    <div style="font-weight:700;font-size:0.98rem;color:var(--text-primary);">게임 기록 2단계 입력(참석자 선등록 ➔ 나중에 순위 추가) 기능 추가 완료</div>
-                    <div style="font-size:0.82rem;color:var(--text-muted);">게임 기록 목록에서 🏆 순위 입력 / ✏️ 수정 버튼으로 언제든 순위 등록 가능</div>
+                    <div style="font-weight:700;font-size:0.98rem;color:var(--text-primary);">멤버 아바타 닉네임/아이디 표기 및 ✏️ 수정 기능 추가 완료</div>
+                    <div style="font-size:0.82rem;color:var(--text-muted);">성(강, 김) 단일 표기에서 닉네임/아이디(병선, 남수, 상국, SK 등) 아바타 표기 개편</div>
                 </div>
             </div>
             <div style="text-align:right;">
-                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v4.1.0 (최신)</span>
-                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-22 13:15:00</div>
+                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v4.2.0 (최신)</span>
+                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-22 13:35:00</div>
             </div>
         </div>
 

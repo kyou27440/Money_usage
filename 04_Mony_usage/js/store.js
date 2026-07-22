@@ -97,14 +97,28 @@ const Store = {
     },
 
     async addMember(member) {
-        const { data, error } = await supabase.from('club_members').insert(member).select().single();
+        let { data, error } = await supabase.from('club_members').insert(member).select().single();
+        if (error && error.message && error.message.includes('nickname')) {
+            const copy = { ...member };
+            delete copy.nickname;
+            const res = await supabase.from('club_members').insert(copy).select().single();
+            data = res.data;
+            error = res.error;
+        }
         if (error) { console.error('addMember:', error); return null; }
         return data;
     },
 
     async updateMember(id, updates) {
         updates.updated_at = new Date().toISOString();
-        const { data, error } = await supabase.from('club_members').update(updates).eq('id', id).select().single();
+        let { data, error } = await supabase.from('club_members').update(updates).eq('id', id).select().single();
+        if (error && error.message && error.message.includes('nickname')) {
+            const copy = { ...updates };
+            delete copy.nickname;
+            const res = await supabase.from('club_members').update(copy).eq('id', id).select().single();
+            data = res.data;
+            error = res.error;
+        }
         if (error) { console.error('updateMember:', error); return null; }
         return data;
     },

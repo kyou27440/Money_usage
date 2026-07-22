@@ -187,61 +187,105 @@ const ClubPage = {
         }
     },
 
+    membersMap: {},
+
     // ─── 멤버 관리 탭 ───
     async renderMembers(container) {
         const members = await Store.getMembers();
+        this.membersMap = {};
+        members.forEach(m => this.membersMap[m.id] = m);
+
         container.innerHTML = `
             <div class="section-header">
                 <span class="section-title">모임 멤버</span>
                 <button class="btn btn-primary" id="btn-add-member">+ 멤버 추가</button>
             </div>
             <div class="club-members-grid">
-                ${members.map(m => `
+                ${members.map(m => {
+                    const avatarText = m.nickname ? Utils.escapeHtml(m.nickname) : (m.name.length >= 3 ? m.name.slice(-2) : m.name);
+                    return `
                     <div class="member-card">
-                        <div class="member-avatar">${m.name.charAt(0)}</div>
-                        <div class="member-name">${Utils.escapeHtml(m.name)}</div>
+                        <div class="member-avatar" style="font-size:0.92rem;letter-spacing:-0.5px;">${avatarText}</div>
+                        <div class="member-name">${Utils.escapeHtml(m.name)} ${m.nickname ? `<span style="font-size:0.8rem;color:#38bdf8;font-weight:normal;">(${Utils.escapeHtml(m.nickname)})</span>` : ''}</div>
                         <div class="member-meta">
                             <span class="badge badge-${m.member_type}">${m.member_type === 'regular' ? '상시' : '출장'}</span>
                             <span class="badge badge-${m.status}" style="margin-left:4px">${m.status === 'active' ? '활동중' : m.status === 'inactive' ? '비활동' : '퇴사'}</span>
                         </div>
                         <div class="member-meta mt-sm">${Utils.escapeHtml(m.company)} • ${Utils.formatDate(m.join_date)}</div>
-                        <div style="margin-top:8px;display:flex;gap:4px;justify-content:center">
+                        <div style="margin-top:10px;display:flex;gap:4px;justify-content:center;flex-wrap:wrap;">
+                            <button class="btn btn-ghost btn-sm" onclick="ClubPage.openMemberModal(${m.id})">✏️ 아이디/수정</button>
                             ${m.status === 'active' ? `<button class="btn btn-ghost btn-sm" onclick="ClubPage.updateMemberStatus(${m.id},'inactive')">비활동</button>` : ''}
                             ${m.status === 'inactive' ? `<button class="btn btn-success btn-sm" onclick="ClubPage.updateMemberStatus(${m.id},'active')">복귀</button>` : ''}
                             ${m.status !== 'departed' ? `<button class="btn btn-danger btn-sm" onclick="ClubPage.updateMemberStatus(${m.id},'departed')">퇴사</button>` : ''}
                         </div>
                     </div>
-                `).join('') || '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">👥</div><p class="empty-text">멤버가 없습니다</p></div>'}
+                `}).join('') || '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">👥</div><p class="empty-text">멤버가 없습니다</p></div>'}
             </div>`;
 
         document.getElementById('btn-add-member').addEventListener('click', () => this.openMemberModal());
     },
 
-    async openMemberModal() {
-        Modal.open('멤버 추가', `
+    async openMemberModal(memberId = null) {
+        const editMember = memberId ? this.membersMap[memberId] : null;
+
+        Modal.open(editMember ? '👥 멤버 정보 & 아이디 수정' : '👥 멤버 추가', `
             <div class="form-grid">
-                <div class="form-group"><label>이름</label><input type="text" id="mem-name" placeholder="이름"></div>
-                <div class="form-group"><label>소속</label><input type="text" id="mem-company" value="현지" placeholder="현지/본사"></div>
+                <div class="form-group">
+                    <label>이름 (풀네임)</label>
+                    <input type="text" id="mem-name" value="${editMember ? Utils.escapeHtml(editMember.name) : ''}" placeholder="예: 김상국">
+                </div>
+                <div class="form-group">
+                    <label>아이디 / 닉네임 <span style="font-size:0.78rem;color:#38bdf8;">(아바타 동그라미에 표시)</span></label>
+                    <input type="text" id="mem-nickname" value="${editMember ? Utils.escapeHtml(editMember.nickname || '') : ''}" placeholder="예: 상국, SK (미입력시 '상국'으로 자동 표시)">
+                </div>
+                <div class="form-group">
+                    <label>소속</label>
+                    <input type="text" id="mem-company" value="${editMember ? Utils.escapeHtml(editMember.company) : '현지'}" placeholder="현지/본사">
+                </div>
                 <div class="form-group">
                     <label>유형</label>
-                    <select id="mem-type"><option value="regular">상시 멤버</option><option value="temporary">단기 출장자</option></select>
+                    <select id="mem-type">
+                        <option value="regular" ${editMember && editMember.member_type === 'regular' ? 'selected' : ''}>상시 멤버</option>
+                        <option value="temporary" ${editMember && editMember.member_type === 'temporary' ? 'selected' : ''}>단기 출장자</option>
+                    </select>
                 </div>
-                <div class="form-group"><label>합류일</label><input type="date" id="mem-join" value="${Utils.today()}"></div>
+                <div class="form-group">
+                    <label>합류일</label>
+                    <input type="date" id="mem-join" value="${editMember ? editMember.join_date : Utils.today()}">
+                </div>
             </div>
-            <div class="form-group mt-md"><label>메모</label><input type="text" id="mem-memo" placeholder="메모 (선택)"></div>
-        `, `<button class="btn btn-ghost" onclick="Modal.close()">취소</button><button class="btn btn-primary" id="btn-save-mem">저장</button>`);
+            <div class="form-group mt-md">
+                <label>메모</label>
+                <input type="text" id="mem-memo" value="${editMember ? Utils.escapeHtml(editMember.memo || '') : ''}" placeholder="메모 (선택)">
+            </div>
+        `, `
+            <button class="btn btn-ghost" onclick="Modal.close()">취소</button>
+            <button class="btn btn-primary" id="btn-save-mem">${editMember ? '수정 완료' : '저장'}</button>
+        `);
 
         document.getElementById('btn-save-mem').addEventListener('click', async () => {
             const data = {
                 name: document.getElementById('mem-name').value.trim(),
+                nickname: document.getElementById('mem-nickname').value.trim(),
                 company: document.getElementById('mem-company').value.trim() || '현지',
                 member_type: document.getElementById('mem-type').value,
                 join_date: document.getElementById('mem-join').value,
                 memo: document.getElementById('mem-memo').value.trim()
             };
             if (!data.name || !data.join_date) { Utils.toast('이름과 합류일을 입력해주세요', 'error'); return; }
-            const result = await Store.addMember(data);
-            if (result) { Utils.toast('멤버가 추가되었습니다', 'success'); Modal.close(); this.renderTab(); }
+
+            let result;
+            if (editMember) {
+                result = await Store.updateMember(editMember.id, data);
+            } else {
+                result = await Store.addMember(data);
+            }
+
+            if (result) { 
+                Utils.toast(editMember ? '멤버 정보 및 아이디가 수정되었습니다' : '멤버가 추가되었습니다', 'success'); 
+                Modal.close(); 
+                this.renderTab(); 
+            }
         });
     },
 
