@@ -73,3 +73,134 @@
     background: var(--bg-secondary);
     color: var(--text-secondary);
 }
+
+/* 🧮 회비 산출 시트 스타일 (엑셀 룩앤필) */
+.calc-sheet-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.preset-badge-group {
+    display: flex;
+    gap: var(--space-xs);
+}
+
+.calc-sheet-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.calc-sheet-table th,
+.calc-sheet-table td {
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    text-align: right;
+}
+
+.calc-sheet-table th {
+    background: var(--bg-tertiary);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.calc-sheet-table .cell-label {
+    text-align: center;
+    font-weight: 600;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+}
+
+.calc-sheet-table .cell-val {
+    font-weight: 500;
+}
+
+.calc-sheet-table .cell-total {
+    font-weight: 700;
+    background: rgba(99, 102, 241, 0.08);
+    color: var(--accent-indigo);
+}
+
+/* 초록색 Highlight TTL 행 (엑셀 스타일) */
+.calc-sheet-table .row-ttl {
+    background: #10b981; /* Vibrant Emerald Green */
+    color: #ffffff;
+}
+
+.calc-sheet-table .cell-label-ttl {
+    text-align: center;
+    font-weight: 800;
+    background: #059669;
+    color: #ffffff;
+}
+
+.calc-sheet-table .cell-val-ttl {
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.calc-sheet-table .cell-total-ttl {
+    font-weight: 900;
+    background: #047857;
+    color: #ffffff;
+    font-size: 1.05rem;
+}
+
+/* 비율 입력 필드 */
+.calc-sheet-table .cell-ratio {
+    text-align: center;
+    padding: 6px;
+    background: var(--bg-secondary);
+}
+
+.ratio-input-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 2px 6px;
+}
+
+.ratio-input-wrapper:focus-within {
+    border-color: var(--accent-indigo);
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.ratio-input {
+    width: 48px;
+    border: none;
+    background: transparent;
+    text-align: right;
+    font-weight: 700;
+    color: var(--accent-indigo);
+    font-size: 0.9rem;
+}
+
+.percent-sign {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.calc-sheet-table .cell-total-ratio {
+    text-align: right;
+    font-weight: 800;
+    color: var(--accent-indigo);
+    background: var(--bg-tertiary);
+}
+
+/* 공지 문구 미리보기 박스 */
+.notice-preview-box {
+    background: var(--bg-tertiary);
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    font-family: 'Courier New', Courier, monospace;
+    white-space: pre-wrap;
+    line-height: 1.6;
+    color: var(--text-primary);
+    font-size: 0.88rem;
+}
