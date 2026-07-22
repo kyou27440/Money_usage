@@ -250,19 +250,32 @@ const ClubPage = {
                 <span class="section-title">모임 멤버</span>
                 <button class="btn btn-primary" id="btn-add-member">+ 멤버 추가</button>
             </div>
-            <div class="club-members-grid">
+            <div class="club-members-grid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(240px, 1fr));gap:16px;">
                 ${members.map(m => {
                     const avatarText = m.nickname ? Utils.escapeHtml(m.nickname) : (m.name.length >= 3 ? m.name.slice(-2) : m.name);
+                    const typeBadge = m.member_type === 'regular'
+                        ? `<span style="background:rgba(16,185,129,0.18);color:#34d399;border:1px solid rgba(16,185,129,0.35);font-size:0.82rem;font-weight:700;padding:2px 8px;border-radius:6px;white-space:nowrap;">상시</span>`
+                        : `<span style="background:rgba(139,92,246,0.18);color:#c084fc;border:1px solid rgba(139,92,246,0.35);font-size:0.82rem;font-weight:700;padding:2px 8px;border-radius:6px;white-space:nowrap;">출장</span>`;
+                    const statusBadge = m.status === 'active'
+                        ? `<span style="background:rgba(56,189,248,0.15);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);font-size:0.78rem;padding:2px 6px;border-radius:6px;white-space:nowrap;">활동중</span>`
+                        : (m.status === 'inactive' ? `<span style="background:rgba(148,163,184,0.15);color:#94a3b8;font-size:0.78rem;padding:2px 6px;border-radius:6px;white-space:nowrap;">비활동</span>` : `<span style="background:rgba(244,63,94,0.15);color:#f43f5e;font-size:0.78rem;padding:2px 6px;border-radius:6px;white-space:nowrap;">퇴사</span>`);
+
                     return `
-                    <div class="member-card">
-                        <div class="member-avatar" style="font-size:0.92rem;letter-spacing:-0.5px;">${avatarText}</div>
-                        <div class="member-name">${Utils.escapeHtml(m.name)} ${m.nickname ? `<span style="font-size:0.8rem;color:#38bdf8;font-weight:normal;">(${Utils.escapeHtml(m.nickname)})</span>` : ''}</div>
-                        <div class="member-meta">
-                            <span class="badge badge-${m.member_type}">${m.member_type === 'regular' ? '상시' : '출장'}</span>
-                            <span class="badge badge-${m.status}" style="margin-left:4px">${m.status === 'active' ? '활동중' : m.status === 'inactive' ? '비활동' : '퇴사'}</span>
+                    <div class="member-card" style="padding:16px;background:linear-gradient(135deg, rgba(30,41,59,0.9), rgba(15,23,42,0.95));border:1px solid rgba(99,102,241,0.28);border-radius:16px;box-shadow:0 4px 16px rgba(0,0,0,0.2);">
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+                            <div class="member-avatar" style="height:44px;min-width:52px;padding:0 14px;font-size:0.95rem;font-weight:700;border-radius:22px;background:linear-gradient(135deg,#6366f1,#8b5cf6);box-shadow:0 4px 12px rgba(99,102,241,0.35);color:#ffffff;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;">${avatarText}</div>
+                            <div style="overflow:hidden;flex:1;">
+                                <div style="font-weight:700;font-size:1.08rem;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${Utils.escapeHtml(m.name)}</div>
+                                <div style="display:flex;align-items:center;gap:6px;margin-top:4px;white-space:nowrap;">
+                                    ${typeBadge}
+                                    ${statusBadge}
+                                </div>
+                            </div>
                         </div>
-                        <div class="member-meta mt-sm">${Utils.escapeHtml(m.company)} • ${Utils.formatDate(m.join_date)}</div>
-                        <div style="margin-top:10px;display:flex;gap:4px;justify-content:center;flex-wrap:wrap;">
+                        <div style="font-size:0.88rem;color:#cbd5e1;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:6px 10px;background:rgba(15,23,42,0.6);border-radius:8px;border:1px solid rgba(255,255,255,0.05);margin-bottom:12px;">
+                            소속: <strong>${Utils.escapeHtml(m.company)}</strong> • 합류: ${Utils.formatDate(m.join_date)}
+                        </div>
+                        <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;">
                             <button class="btn btn-ghost btn-sm" onclick="ClubPage.openMemberModal(${m.id})">✏️ 아이디/수정</button>
                             ${m.status === 'active' ? `<button class="btn btn-ghost btn-sm" onclick="ClubPage.updateMemberStatus(${m.id},'inactive')">비활동</button>` : ''}
                             ${m.status === 'inactive' ? `<button class="btn btn-success btn-sm" onclick="ClubPage.updateMemberStatus(${m.id},'active')">복귀</button>` : ''}
