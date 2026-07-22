@@ -233,9 +233,24 @@
         margin-bottom: 12px;
     }
 
-    /* 차트 높이 세로 최적화 */
-    .chart-container {
-        max-height: 220px;
+    /* 산출 시트 정산 카드 그리드 1열 수직 강제 적용 (잘림 방지) */
+    .rank-fee-grid,
+    .ranking-vertical-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+    }
+
+    /* 요약 배너 2열 모바일 콤팩트 */
+    .fresh-summary-banner {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+        padding: 10px !important;
+    }
+
+    /* 카드 패딩 모바일 슬림화 */
+    .card {
+        padding: 12px 10px !important;
+        border-radius: 12px !important;
     }
 
     /* 모달 모바일 세로 전체화면 팝업 */

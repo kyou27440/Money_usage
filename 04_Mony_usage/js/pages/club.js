@@ -859,61 +859,49 @@ const ClubPage = {
         // DOM 갱신 (keepDOM이 false이거나 없으면 전체 HTML 생성, true이면 숫치 셀만 업데이트하여 입력 포커스 유지)
         if (!options.keepDOM) {
             let cardsHtml = `
-                <div class="calc-rank-vertical-list" style="display:flex;flex-direction:column;gap:12px;">
+                <div class="calc-rank-vertical-list" style="display:flex;flex-direction:column;gap:8px;">
                     ${Array.from({ length: count }, (_, i) => {
                         const medal = i === 0 ? '🥇 ' : (i === 1 ? '🥈 ' : (i === 2 ? '🥉 ' : ''));
                         return `
-                        <div class="calc-rank-card" style="padding:14px 16px;background:linear-gradient(135deg, rgba(30,41,59,0.95), rgba(15,23,42,0.98));border:1px solid rgba(99,102,241,0.3);border-radius:16px;box-shadow:0 4px 14px rgba(0,0,0,0.18);">
-                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.08);">
-                                <span style="font-weight:800;font-size:1.1rem;color:#f8fafc;">${medal}${i + 1}등 회비 산출</span>
-                                <div style="display:flex;align-items:center;gap:6px;">
-                                    <span style="font-size:0.82rem;color:var(--text-muted);">배분 비율:</span>
-                                    <div class="ratio-input-wrapper" style="width:75px;">
+                        <div class="calc-rank-card" style="padding:10px 12px;background:linear-gradient(135deg, rgba(30,41,59,0.95), rgba(15,23,42,0.98));border:1px solid rgba(99,102,241,0.3);border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.18);">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                                <span style="font-weight:800;font-size:0.98rem;color:#f8fafc;">${medal}${i + 1}등 회비 산출</span>
+                                <div style="display:flex;align-items:center;gap:4px;">
+                                    <span style="font-size:0.78rem;color:var(--text-muted);">배분:</span>
+                                    <div class="ratio-input-wrapper" style="width:64px;padding:2px 4px;min-width:64px;">
                                         <input type="text" 
                                                inputmode="decimal" 
                                                pattern="[0-9.]*"
                                                class="ratio-input" 
                                                data-rank="${i}" 
                                                value="${ratios[i] || 0}" 
-                                               autocomplete="off" 
-                                               autocorrect="off" 
-                                               autocapitalize="off" 
-                                               spellcheck="false" 
-                                               aria-autocomplete="none"
-                                               data-lpignore="true" 
-                                               data-1p-ignore="true" 
-                                               data-form-type="other"
-                                               name="ratio_rank_${i}_noautofill">
-                                        <span class="percent-sign">%</span>
+                                               style="width:36px!important;min-width:36px!important;font-size:0.92rem!important;"
+                                               autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                                        <span class="percent-sign" style="font-size:0.8rem;">%</span>
                                     </div>
                                 </div>
                             </div>
-                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:10px 12px;background:rgba(15,23,42,0.75);border-radius:12px;text-align:center;border:1px solid rgba(255,255,255,0.05);">
-                                <div>
-                                    <div style="color:var(--text-muted);font-size:0.78rem;">⛳ 골프비</div>
-                                    <div class="calc-g-val-${i}" style="font-weight:700;color:#38bdf8;margin-top:3px;font-size:0.92rem;">${Utils.formatVND(golfPerRank[i])}</div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:rgba(15,23,42,0.7);border-radius:8px;font-size:0.82rem;gap:4px;flex-wrap:wrap;">
+                                <div style="display:flex;gap:8px;color:var(--text-muted);flex-wrap:wrap;">
+                                    <span>⛳ <strong class="calc-g-val-${i}" style="color:#38bdf8;font-weight:700;">${Utils.formatVND(golfPerRank[i])}</strong></span>
+                                    <span>🍜 <strong class="calc-m-val-${i}" style="color:#c084fc;font-weight:700;">${Utils.formatVND(mealPerRank[i])}</strong></span>
                                 </div>
-                                <div>
-                                    <div style="color:var(--text-muted);font-size:0.78rem;">🍜 식사비</div>
-                                    <div class="calc-m-val-${i}" style="font-weight:700;color:#c084fc;margin-top:3px;font-size:0.92rem;">${Utils.formatVND(mealPerRank[i])}</div>
-                                </div>
-                                <div style="background:rgba(16,185,129,0.12);padding:4px;border-radius:8px;border:1px solid rgba(16,185,129,0.25);">
-                                    <div style="color:#34d399;font-size:0.78rem;font-weight:700;">💰 지불 회비</div>
-                                    <div class="calc-t-val-${i}" style="font-weight:800;color:#34d399;margin-top:2px;font-size:0.98rem;">${Utils.formatVND(ttlPerRank[i])}</div>
+                                <div style="font-weight:800;color:#34d399;font-size:0.92rem;background:rgba(16,185,129,0.15);padding:2px 8px;border-radius:6px;margin-left:auto;">
+                                    💰 <span class="calc-t-val-${i}">${Utils.formatVND(ttlPerRank[i])}</span>
                                 </div>
                             </div>
                         </div>
                         `;
                     }).join('')}
 
-                    <!-- 전체 총액 합계 바 -->
-                    <div style="padding:14px 16px;background:linear-gradient(135deg, rgba(99,102,241,0.2), rgba(16,185,129,0.2));border:1px solid rgba(99,102,241,0.4);border-radius:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:4px;">
-                        <span style="font-weight:800;font-size:1.05rem;color:#f8fafc;">📊 전체 총액 (Total)</span>
-                        <div style="display:flex;gap:12px;font-size:0.9rem;align-items:center;flex-wrap:wrap;">
-                            <span>비율: <strong class="cell-total-ratio" style="color:#38bdf8;">${ratioSumFixed}%</strong></span>
-                            <span>골프: <strong class="calc-g-ttl" style="color:#38bdf8;">${Utils.formatVND(golfTotal)}</strong></span>
-                            <span>식사: <strong class="calc-m-ttl" style="color:#c084fc;">${Utils.formatVND(mealTotal)}</strong></span>
-                            <span>총회비: <strong class="calc-t-ttl" style="color:#34d399;font-size:1.05rem;">${Utils.formatVND(ttlGrandTotal)}</strong></span>
+                    <!-- 전체 총액 합계 콤팩트 카드 -->
+                    <div style="padding:10px 12px;background:linear-gradient(135deg, rgba(99,102,241,0.2), rgba(16,185,129,0.2));border:1px solid rgba(99,102,241,0.4);border-radius:12px;margin-top:4px;">
+                        <div style="font-weight:800;font-size:0.95rem;color:#f8fafc;margin-bottom:6px;">📊 전체 총액 (Total)</div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:0.82rem;">
+                            <div>비율 합계: <strong class="cell-total-ratio" style="color:#38bdf8;">${ratioSumFixed}%</strong></div>
+                            <div>총 골프비: <strong class="calc-g-ttl" style="color:#38bdf8;">${Utils.formatVND(golfTotal)}</strong></div>
+                            <div>총 식사비: <strong class="calc-m-ttl" style="color:#c084fc;">${Utils.formatVND(mealTotal)}</strong></div>
+                            <div>총 회비: <strong class="calc-t-ttl" style="color:#34d399;font-size:0.95rem;">${Utils.formatVND(ttlGrandTotal)}</strong></div>
                         </div>
                     </div>
                 </div>
