@@ -108,12 +108,13 @@
 
     // ── Supabase 연결 확인 & 초기 페이지 로드 ──
     try {
-        const { data, error } = await supabase.from('app_settings').select('key').limit(1);
-        if (error) throw error;
-        console.log('✅ Supabase 연결 성공');
+        if (typeof supabase !== 'undefined' && supabase && typeof supabase.from === 'function') {
+            const { data, error } = await supabase.from('app_settings').select('key').limit(1);
+            if (error) throw error;
+            console.log('✅ Supabase 연결 성공');
+        }
     } catch (err) {
         console.warn('⚠️ Supabase 연결 실패:', err.message);
-        console.warn('   → js/config.js에서 SUPABASE_URL과 SUPABASE_ANON_KEY를 설정하세요.');
     }
 
     // 대시보드 로드

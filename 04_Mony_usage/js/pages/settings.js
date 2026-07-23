@@ -110,7 +110,11 @@ const SettingsPage = {
 
     async testConnection() {
         const statusEl = document.getElementById('conn-status');
+        if (!statusEl) return;
         try {
+            if (typeof supabase === 'undefined' || !supabase || typeof supabase.from !== 'function') {
+                throw new Error('Supabase client uninitialized');
+            }
             const { data, error } = await supabase.from('app_settings').select('key').limit(1);
             if (error) throw error;
             statusEl.textContent = '✅ 연결 정상';
