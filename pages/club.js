@@ -42,12 +42,16 @@ const ClubPage = {
         if (!container) return;
         container.innerHTML = '<div class="text-center text-muted" style="padding:40px">⏳ 로딩 중...</div>';
         try {
+            if (!this.currentTab || !['games', 'members', 'dues', 'ranking', 'calculator'].includes(this.currentTab)) {
+                this.currentTab = 'games';
+            }
             switch (this.currentTab) {
                 case 'games': await this.renderGames(container); break;
                 case 'members': await this.renderMembers(container); break;
                 case 'dues': await this.renderDues(container); break;
                 case 'ranking': await this.renderRanking(container); break;
                 case 'calculator': await this.renderCalculator(container); break;
+                default: await this.renderGames(container); break;
             }
         } catch (err) {
             console.error('renderTab error:', err);

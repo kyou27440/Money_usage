@@ -2,8 +2,12 @@
    STORE.JS — Supabase 데이터 접근 레이어 (DAL)
    모든 DB CRUD를 이 파일에서 관리
    ============================================ */
-if (typeof supabase === 'undefined' || typeof supabase.from !== 'function') {
-    var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY || SUPABASE_ANON_KEY);
+if (typeof supabase === 'undefined' || !supabase || typeof supabase.from !== 'function') {
+    try {
+        if (window.supabase && window.supabase.createClient) {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
+    } catch(e) {}
 }
 
 const Store = {

@@ -54,13 +54,11 @@
     window.addEventListener('load', lockPortrait);
     document.addEventListener('touchstart', lockPortrait, { once: true });
 
-    // ── PWA 서비스 워커 등록 (모바일 앱 설치 지원) ──
+    // ── PWA 서비스 워커 해제 & 강제 네트워크 최신화 ──
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('✅ PWA ServiceWorker 등록 성공:', reg.scope))
-                .catch(err => console.warn('⚠️ PWA ServiceWorker 등록 실패:', err));
-        });
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+            for (let reg of registrations) { reg.unregister(); }
+        }).catch(() => {});
     }
 
     // ── 라우터 초기화 ──
