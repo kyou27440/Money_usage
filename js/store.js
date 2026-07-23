@@ -246,30 +246,40 @@ const Store = {
     // ─── 모임: 순위 추이 ───
 
     async getRankingTrend(limit = 10) {
-        const { data, error } = await supabase.from('club_games').select('id, game_date, club_game_participants(member_id, ranking, club_members(name))').order('game_date', { ascending: true }).limit(limit);
-        if (error) { console.error('getRankingTrend:', error); return []; }
-        return data;
+        try {
+            const { data, error } = await supabase.from('club_games').select('id, game_date, club_game_participants(member_id, ranking, club_members(name))').order('game_date', { ascending: true }).limit(limit);
+            if (error) { console.error('getRankingTrend:', error); return []; }
+            return data || [];
+        } catch(e) {
+            console.error('getRankingTrend exception:', e);
+            return [];
+        }
     },
 
     async getMemberStats() {
-        const { data, error } = await supabase.from('club_game_participants').select('member_id, ranking, club_members(name, status)');
-        if (error) { console.error('getMemberStats:', error); return []; }
-        const map = {};
-        (data || []).forEach(p => {
-            const mid = p.member_id;
-            if (!map[mid]) map[mid] = { name: p.club_members?.name, status: p.club_members?.status, games: 0, totalRank: 0, best: Infinity, worst: 0 };
-            map[mid].games++;
-            if (p.ranking) {
-                map[mid].totalRank += p.ranking;
-                map[mid].best = Math.min(map[mid].best, p.ranking);
-                map[mid].worst = Math.max(map[mid].worst, p.ranking);
-            }
-        });
-        return Object.entries(map).map(([id, s]) => ({
-            member_id: Number(id), name: s.name, status: s.status, games: s.games,
-            avgRank: s.games > 0 ? (s.totalRank / s.games).toFixed(1) : '-',
-            best: s.best === Infinity ? '-' : s.best, worst: s.worst || '-'
-        })).sort((a, b) => (parseFloat(a.avgRank) || 99) - (parseFloat(b.avgRank) || 99));
+        try {
+            const { data, error } = await supabase.from('club_game_participants').select('member_id, ranking, club_members(name, status)');
+            if (error) { console.error('getMemberStats:', error); return []; }
+            const map = {};
+            (data || []).forEach(p => {
+                const mid = p.member_id;
+                if (!map[mid]) map[mid] = { name: p.club_members?.name || '?', status: p.club_members?.status, games: 0, totalRank: 0, best: Infinity, worst: 0 };
+                map[mid].games++;
+                if (p.ranking) {
+                    map[mid].totalRank += p.ranking;
+                    map[mid].best = Math.min(map[mid].best, p.ranking);
+                    map[mid].worst = Math.max(map[mid].worst, p.ranking);
+                }
+            });
+            return Object.entries(map).map(([id, s]) => ({
+                member_id: Number(id), name: s.name, status: s.status, games: s.games,
+                avgRank: s.games > 0 ? (s.totalRank / s.games).toFixed(1) : '-',
+                best: s.best === Infinity ? '-' : s.best, worst: s.worst || '-'
+            })).sort((a, b) => (parseFloat(a.avgRank) || 99) - (parseFloat(b.avgRank) || 99));
+        } catch(e) {
+            console.error('getMemberStats exception:', e);
+            return [];
+        }
     },
 
     // ─── 환전 ───

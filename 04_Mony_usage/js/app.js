@@ -76,10 +76,10 @@
             document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.remove('active'));
             item.classList.add('active');
             
-            await Router.navigate(page);
             if (page === 'club' && tab) {
-                ClubPage.switchTab(tab);
+                ClubPage.currentTab = tab;
             }
+            await Router.navigate(page);
         });
     });
 
