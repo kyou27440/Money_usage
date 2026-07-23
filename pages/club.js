@@ -124,7 +124,10 @@ const ClubPage = {
             </div>
             `}`;
 
-        document.getElementById('btn-add-game').addEventListener('click', () => this.openGameModal());
+        const btnAddGame = document.getElementById('btn-add-game');
+        if (btnAddGame) {
+            btnAddGame.addEventListener('click', () => this.openGameModal());
+        }
     },
 
     async openGameModal(gameId = null) {
@@ -315,7 +318,10 @@ const ClubPage = {
                 `}).join('') || '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">👥</div><p class="empty-text">멤버가 없습니다</p></div>'}
             </div>`;
 
-        document.getElementById('btn-add-member').addEventListener('click', () => this.openMemberModal());
+        const btnAddMember = document.getElementById('btn-add-member');
+        if (btnAddMember) {
+            btnAddMember.addEventListener('click', () => this.openMemberModal());
+        }
     },
 
     async openMemberModal(memberId = null) {
@@ -449,7 +455,10 @@ const ClubPage = {
                 }).join('') : '<div class="empty-state"><div class="empty-icon">💵</div><p class="empty-text">회비 내역이 없습니다</p></div>'}
             </div>`;
 
-        document.getElementById('btn-add-dues').addEventListener('click', () => this.openDuesModal());
+        const btnAddDues = document.getElementById('btn-add-dues');
+        if (btnAddDues) {
+            btnAddDues.addEventListener('click', () => this.openDuesModal());
+        }
     },
 
     async openDuesModal() {
