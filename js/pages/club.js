@@ -201,10 +201,15 @@ const ClubPage = {
         const checkAndRenderCalcNotice = async () => {
             const dateVal = document.getElementById('game-date').value;
             const calcInfoElem = document.getElementById('game-modal-calc-info');
+            const costInput = document.getElementById('game-cost');
             if (!dateVal || !calcInfoElem) return;
 
             const calc = await Store.getCalcHistoryByDate(dateVal);
             if (calc) {
+                if (costInput && (!costInput.value || costInput.dataset.autoPopulated === 'true' || !editGame)) {
+                    costInput.value = Utils.formatVND(calc.total_cost).replace('₫','').trim();
+                    costInput.dataset.autoPopulated = 'true';
+                }
                 const rankSummary = (calc.rank_amounts || []).map((amt, idx) => `[${idx + 1}등: ${Utils.formatVND(amt)}]`).join('  ');
                 calcInfoElem.innerHTML = `
                     <div style="padding:10px 14px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.35);border-radius:8px;margin-top:10px;">
@@ -217,6 +222,10 @@ const ClubPage = {
                     </div>
                 `;
             } else {
+                if (costInput && costInput.dataset.autoPopulated === 'true') {
+                    costInput.value = '';
+                    costInput.dataset.autoPopulated = 'false';
+                }
                 calcInfoElem.innerHTML = `
                     <div style="padding:8px 12px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;margin-top:10px;font-size:0.82rem;color:#f59e0b;">
                         ⚠️ 해당 날짜(${dateVal})로 저장된 회비 산출 시트가 없습니다. [회비 산출 시트] 탭에서 [💾 이 날짜로 저장] 하시면 게임 기록에 지불 금액이 연동됩니다!
@@ -231,11 +240,12 @@ const ClubPage = {
         document.getElementById('btn-save-game').addEventListener('click', async () => {
             const gameDate = document.getElementById('game-date').value;
             const calc = await Store.getCalcHistoryByDate(gameDate);
+            const inputCost = Utils.parseAmount(document.getElementById('game-cost').value);
 
             const game = {
                 game_date: gameDate,
                 location: document.getElementById('game-location').value.trim() || '스크린골프장',
-                total_cost: calc ? calc.total_cost : Utils.parseAmount(document.getElementById('game-cost').value),
+                total_cost: inputCost > 0 ? inputCost : (calc ? calc.total_cost : 0),
                 memo: document.getElementById('game-memo').value.trim()
             };
             if (!game.game_date) { Utils.toast('날짜를 입력해주세요', 'error'); return; }
