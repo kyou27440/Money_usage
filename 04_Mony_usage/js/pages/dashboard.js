@@ -19,13 +19,13 @@ const DashboardPage = {
             <div style="display:flex;align-items:center;gap:12px;">
                 <span style="font-size:1.4rem;">🎯</span>
                 <div>
-                    <div style="font-weight:700;font-size:0.98rem;color:var(--text-primary);">등수 비율 중복 0% & 초완만~극단 6단계 차등 비율 시스템 완성</div>
-                    <div style="font-size:0.82rem;color:var(--text-muted);">1등 < 2등 < 3등 엄격 증가 적용 / 초완만형, 완만형, 중등형, 강한형, 극단형, 면제형 6종 제공</div>
+                    <div style="font-weight:700;font-size:0.98rem;color:var(--text-primary);">모바일 게임기록 수정 완비 & 세로모드 고정 및 통계 차트 슬림화</div>
+                    <div style="font-size:0.82rem;color:var(--text-muted);">모바일 전용 100% 가로 전폭 조작 버튼 / 세로 1열 스트림 고정 / 자산 통계 슬림화 완료</div>
                 </div>
             </div>
             <div style="text-align:right;">
-                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v6.2.0 (중복 0% 6단계)</span>
-                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-22 15:35:00</div>
+                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v6.3.0 (모바일 최적화)</span>
+                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-23 12:40:00</div>
             </div>
         </div>
 

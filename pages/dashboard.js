@@ -4,78 +4,79 @@
 
 const DashboardPage = {
     async render() {
-        const [balance, clubBal, exchangeTotal, recentTx, recentGames] = await Promise.all([
-            Store.getTotalBalance(),
+        const [clubBal, exchangeTotal, games, members, calcHistories] = await Promise.all([
             Store.getClubTotalBalance(),
             Store.getExchangeTotal(),
-            Store.getTransactions({ limit: 5 }),
-            Store.getGames({ limit: 3 })
+            Store.getGames({ limit: 5 }),
+            Store.getMembers('active'),
+            Store.getCalcHistoryList()
         ]);
 
-        const monthSummary = await Store.getTransactionSummary(Utils.monthStart(), Utils.monthEnd());
+        const recentGames = games.slice(0, 3);
 
         return `
-        <div class="version-banner" style="background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(16,185,129,0.15)); border: 1px solid rgba(99,102,241,0.3); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+        <div class="version-banner" style="background: linear-gradient(135deg, rgba(99,102,241,0.18), rgba(16,185,129,0.18)); border: 1px solid rgba(99,102,241,0.35); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
             <div style="display:flex;align-items:center;gap:12px;">
-                <span style="font-size:1.4rem;">🚀</span>
+                <span style="font-size:1.4rem;">🎯</span>
                 <div>
-                    <div style="font-weight:700;font-size:0.98rem;color:var(--text-primary);">최종 버젼 시스템 업데이트 반영 완료</div>
-                    <div style="font-size:0.82rem;color:var(--text-muted);">등수별 회비 산출 시트 비율 표기 및 포커스 유지 완전 개편</div>
+                    <div style="font-weight:700;font-size:0.98rem;color:var(--text-primary);">모바일 게임기록 수정 완비 & 세로모드 고정 및 통계 차트 슬림화</div>
+                    <div style="font-size:0.82rem;color:var(--text-muted);">모바일 전용 100% 가로 전폭 조작 버튼 / 세로 1열 스트림 고정 / 자산 통계 슬림화 완료</div>
                 </div>
             </div>
             <div style="text-align:right;">
-                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v4.0.0 (최신)</span>
-                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-22 12:35:00</div>
+                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v6.3.0 (모바일 최적화)</span>
+                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-23 12:40:00</div>
             </div>
         </div>
 
         <div class="summary-grid">
-            <div class="summary-card indigo">
-                <div class="card-icon">💰</div>
-                <div class="card-label">개인 잔액</div>
-                <div class="card-value">${Utils.formatVND(balance)}</div>
-                <div class="card-sub">전체 기간 누적</div>
-            </div>
             <div class="summary-card emerald">
                 <div class="card-icon">⛳</div>
-                <div class="card-label">모임 잔액</div>
+                <div class="card-label">모임 회비 잔액</div>
                 <div class="card-value">${Utils.formatVND(clubBal)}</div>
-                <div class="card-sub">회비 입금 - 사용</div>
+                <div class="card-sub">회비 입금 - 총 지출</div>
             </div>
             <div class="summary-card amber">
-                <div class="card-icon">💱</div>
-                <div class="card-label">환전 순 VND</div>
-                <div class="card-value">${Utils.formatVND(exchangeTotal.vnd)}</div>
-                <div class="card-sub">KRW: ${Utils.formatKRW(exchangeTotal.krw)}</div>
+                <div class="card-icon">📊</div>
+                <div class="card-label">저장된 산출 이력</div>
+                <div class="card-value">${(calcHistories || []).length}건 보관</div>
+                <div class="card-sub">날짜별 회비 산출 시트</div>
+            </div>
+            <div class="summary-card indigo">
+                <div class="card-icon">🎮</div>
+                <div class="card-label">최근 게임 기록</div>
+                <div class="card-value">${games.length}회 기록</div>
+                <div class="card-sub">스크린골프 & 모임</div>
             </div>
             <div class="summary-card rose">
-                <div class="card-icon">📉</div>
-                <div class="card-label">이번 달 지출</div>
-                <div class="card-value">${Utils.formatVND(monthSummary.expense)}</div>
-                <div class="card-sub">수입: ${Utils.formatVND(monthSummary.income)}</div>
+                <div class="card-icon">👥</div>
+                <div class="card-label">활동 모임 멤버</div>
+                <div class="card-value">${members.length}명</div>
+                <div class="card-sub">상시 & 출장 멤버</div>
             </div>
         </div>
 
         <div class="dashboard-grid">
             <div class="card">
-                <div class="card-header">
-                    <span class="card-title">📊 이번 달 수입/지출</span>
-                </div>
-                <div class="chart-container" style="height:260px">
-                    <canvas id="dash-month-chart"></canvas>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-title">🏆 최근 게임 순위</span>
+                <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+                    <span class="card-title">🏆 최근 게임 기록 & 순위</span>
+                    <button class="btn btn-ghost btn-sm" onclick="Router.navigate('club')">더보기 ➔</button>
                 </div>
                 ${recentGames.length > 0 ? this.renderRecentGames(recentGames) : '<div class="empty-state"><div class="empty-icon">⛳</div><p class="empty-text">아직 게임 기록이 없습니다</p></div>'}
             </div>
-            <div class="card full-width">
-                <div class="card-header">
-                    <span class="card-title">🕐 최근 활동</span>
+            <div class="card">
+                <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+                    <span class="card-title">📊 최근 저장된 회비 산출 이력</span>
+                    <button class="btn btn-emerald btn-sm" onclick="Router.navigate('club')">산출시트 이동</button>
                 </div>
-                ${recentTx.length > 0 ? this.renderRecentActivity(recentTx) : '<div class="empty-state"><div class="empty-icon">📝</div><p class="empty-text">아직 거래 내역이 없습니다</p></div>'}
+                ${calcHistories && calcHistories.length > 0 ? this.renderRecentCalcs(calcHistories.slice(0, 3)) : '<div class="empty-state"><div class="empty-icon">📊</div><p class="empty-text">저장된 산출 이력이 없습니다</p></div>'}
+            </div>
+            <div class="card full-width">
+                <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+                    <span class="card-title">👥 활동 중인 모임 멤버</span>
+                    <button class="btn btn-ghost btn-sm" onclick="Router.navigate('club')">멤버 관리 ➔</button>
+                </div>
+                ${this.renderActiveMembers(members)}
             </div>
         </div>`;
     },
@@ -85,16 +86,59 @@ const DashboardPage = {
         games.forEach(g => {
             const parts = (g.club_game_participants || []).sort((a, b) => (a.ranking || 99) - (b.ranking || 99));
             const partStr = parts.map(p => {
-                const rankClass = p.ranking <= 3 ? `rank-${p.ranking}` : 'rank-other';
+                const rankClass = p.ranking <= 3 && p.ranking > 0 ? `rank-${p.ranking}` : 'rank-other';
                 return `<span class="ranking-badge ${rankClass}" title="${p.club_members?.name}">${p.ranking || '-'}</span> ${Utils.escapeHtml(p.club_members?.name || '?')}`;
             }).join('&nbsp;&nbsp;');
             html += `<div class="activity-item">
                 <div class="activity-icon">⛳</div>
                 <div class="activity-info">
-                    <div class="activity-title">${Utils.formatDateKR(g.game_date)} ${g.location || ''}</div>
+                    <div class="activity-title">${Utils.formatDateKR(g.game_date)} ${Utils.escapeHtml(g.location || '')}</div>
                     <div class="activity-meta" style="margin-top:4px">${partStr || '참여자 없음'}</div>
                 </div>
             </div>`;
+        });
+        html += '</div>';
+        return html;
+    },
+
+    renderRecentCalcs(histories) {
+        let html = '<div style="display:flex;flex-direction:column;gap:12px">';
+        histories.forEach(h => {
+            html += `<div class="activity-item">
+                <div class="activity-icon">📊</div>
+                <div class="activity-info">
+                    <div class="activity-title"><strong>[${Utils.formatDateKR(h.calc_date)}]</strong> ${Utils.escapeHtml(h.title || '스크린골프')} (${h.player_count}명)</div>
+                    <div class="activity-meta" style="margin-top:4px;color:#10b981;font-weight:600;">
+                        ${(h.rank_amounts || []).map((amt, idx) => `${idx+1}등:${Utils.formatVND(amt)}`).join(' | ')}
+                    </div>
+                </div>
+                <div style="font-weight:700;color:#38bdf8;">${Utils.formatVND(h.total_cost)}</div>
+            </div>`;
+        });
+        html += '</div>';
+        return html;
+    },
+
+    renderActiveMembers(members) {
+        let html = '<div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(210px, 1fr));gap:14px;">';
+        members.forEach(m => {
+            const avatarText = m.nickname ? Utils.escapeHtml(m.nickname) : (m.name.length >= 3 ? m.name.slice(-2) : m.name);
+            const typeBadge = m.member_type === 'regular'
+                ? `<span style="background:rgba(16,185,129,0.18);color:#34d399;border:1px solid rgba(16,185,129,0.35);font-size:0.8rem;font-weight:700;padding:2px 8px;border-radius:6px;white-space:nowrap;">상시</span>`
+                : `<span style="background:rgba(139,92,246,0.18);color:#c084fc;border:1px solid rgba(139,92,246,0.35);font-size:0.8rem;font-weight:700;padding:2px 8px;border-radius:6px;white-space:nowrap;">출장</span>`;
+            
+            html += `
+                <div class="active-member-card" style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:linear-gradient(135deg, rgba(30,41,59,0.9), rgba(15,23,42,0.95));border:1px solid rgba(99,102,241,0.28);border-radius:14px;box-shadow:0 4px 14px rgba(0,0,0,0.18);transition:all 0.2s ease;">
+                    <div class="member-avatar" style="height:42px;min-width:50px;padding:0 14px;font-size:0.92rem;font-weight:700;border-radius:21px;background:linear-gradient(135deg,#6366f1,#8b5cf6);box-shadow:0 4px 12px rgba(99,102,241,0.35);color:#ffffff;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;">${avatarText}</div>
+                    <div style="overflow:hidden;flex:1;">
+                        <div style="font-weight:700;font-size:1.05rem;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${Utils.escapeHtml(m.name)}</div>
+                        <div style="display:flex;align-items:center;gap:6px;margin-top:5px;white-space:nowrap;">
+                            ${typeBadge}
+                            <span style="font-size:0.88rem;color:#cbd5e1;font-weight:500;white-space:nowrap;">• ${Utils.escapeHtml(m.company)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
         });
         html += '</div>';
         return html;
