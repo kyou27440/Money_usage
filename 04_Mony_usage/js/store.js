@@ -146,110 +146,272 @@ const Store = {
         return { ...member, nickname: nick, memo: memo };
     },
 
+    _getLocalMembers() {
+        try {
+            const raw = localStorage.getItem('club_local_members_v1');
+            return raw ? JSON.parse(raw) : [];
+        } catch(e) { return []; }
+    },
+
+    _saveLocalMembers(list) {
+        try {
+            localStorage.setItem('club_local_members_v1', JSON.stringify(list));
+        } catch(e) {}
+    },
+
     async getMembers(statusFilter = null) {
-        let q = this.from('club_members').select('*').order('name');
-        if (statusFilter) q = q.eq('status', statusFilter);
-        const { data, error } = await q;
-        if (error) { console.error('getMembers:', error); return []; }
-        return (data || []).map(m => this._parseMember(m));
+        let dbList = [];
+        try {
+            let q = this.from('club_members').select('*').order('name');
+            if (statusFilter) q = q.eq('status', statusFilter);
+            const { data, error } = await q;
+            if (!error && data && data.length > 0) dbList = data;
+        } catch(e) {}
+
+        const localList = this._getLocalMembers();
+        const combinedMap = {};
+        dbList.forEach(m => combinedMap[m.id] = m);
+        localList.forEach(m => {
+            if (statusFilter && m.status !== statusFilter) return;
+            combinedMap[m.id] = m;
+        });
+
+        const finalList = Object.values(combinedMap);
+        return finalList.map(m => this._parseMember(m));
     },
 
     async addMember(member) {
+        member.status = member.status || 'active';
+        member.created_at = member.created_at || new Date().toISOString();
         const prepared = this._formatMemberForSave(member);
-        let { data, error } = await this.from('club_members').insert(prepared).select().single();
-        if (error && error.message && error.message.includes('nickname')) {
-            const copy = { ...prepared };
-            delete copy.nickname;
-            const res = await this.from('club_members').insert(copy).select().single();
-            data = res.data;
-            error = res.error;
+
+        let dbMember = null;
+        try {
+            let { data, error } = await this.from('club_members').insert(prepared).select().single();
+            if (error && error.message && error.message.includes('nickname')) {
+                const copy = { ...prepared };
+                delete copy.nickname;
+                const res = await this.from('club_members').insert(copy).select().single();
+                data = res.data;
+            }
+            if (data) dbMember = data;
+        } catch(e) {}
+
+        const savedMember = dbMember || { ...prepared, id: Date.now() };
+
+        const localList = this._getLocalMembers();
+        const existingIdx = localList.findIndex(m => String(m.id) === String(savedMember.id) || m.name === savedMember.name);
+        if (existingIdx >= 0) {
+            localList[existingIdx] = savedMember;
+        } else {
+            localList.push(savedMember);
         }
-        if (!data) data = { ...prepared, id: Date.now() };
-        return this._parseMember(data);
+        this._saveLocalMembers(localList);
+
+        return this._parseMember(savedMember);
     },
 
     async updateMember(id, updates) {
         updates.updated_at = new Date().toISOString();
         const prepared = this._formatMemberForSave(updates);
-        let { data, error } = await this.from('club_members').update(prepared).eq('id', id).select().single();
-        if (error && error.message && error.message.includes('nickname')) {
-            const copy = { ...prepared };
-            delete copy.nickname;
-            const res = await this.from('club_members').update(copy).eq('id', id).select().single();
-            data = res.data;
-            error = res.error;
+
+        let dbMember = null;
+        try {
+            let { data, error } = await this.from('club_members').update(prepared).eq('id', id).select().single();
+            if (error && error.message && error.message.includes('nickname')) {
+                const copy = { ...prepared };
+                delete copy.nickname;
+                const res = await this.from('club_members').update(copy).eq('id', id).select().single();
+                data = res.data;
+            }
+            if (data) dbMember = data;
+        } catch(e) {}
+
+        const localList = this._getLocalMembers();
+        let updatedItem = dbMember || { ...prepared, id: id };
+        const existingIdx = localList.findIndex(m => String(m.id) === String(id));
+        if (existingIdx >= 0) {
+            updatedItem = { ...localList[existingIdx], ...prepared };
+            localList[existingIdx] = updatedItem;
+        } else {
+            localList.push(updatedItem);
         }
-        if (!data) data = { ...prepared, id: id };
-        return this._parseMember(data);
+        this._saveLocalMembers(localList);
+
+        return this._parseMember(updatedItem);
     },
 
     // ─── 모임: 게임 ───
 
+    _getLocalGames() {
+        try {
+            const raw = localStorage.getItem('club_local_games_v1');
+            return raw ? JSON.parse(raw) : [];
+        } catch(e) { return []; }
+    },
+
+    _saveLocalGames(list) {
+        try {
+            localStorage.setItem('club_local_games_v1', JSON.stringify(list));
+        } catch(e) {}
+    },
+
     async getGames(filters = {}) {
+        let dbList = [];
         try {
             let q = this.from('club_games').select('*, club_game_participants(*, club_members(name))').order('game_date', { ascending: false });
             if (filters.startDate) q = q.gte('game_date', filters.startDate);
             if (filters.endDate) q = q.lte('game_date', filters.endDate);
             if (filters.limit) q = q.limit(filters.limit);
             const { data, error } = await q;
-            if (error) { console.error('getGames:', error); return []; }
-            return data || [];
-        } catch(e) {
-            console.error('getGames exception:', e);
-            return [];
-        }
+            if (!error && data && data.length > 0) dbList = data;
+        } catch(e) {}
+
+        const localList = this._getLocalGames();
+        const combinedMap = {};
+        dbList.forEach(g => combinedMap[g.id] = g);
+        localList.forEach(g => combinedMap[g.id] = g);
+
+        let list = Object.values(combinedMap).sort((a, b) => new Date(b.game_date) - new Date(a.game_date));
+        if (filters.limit) list = list.slice(0, filters.limit);
+        return list;
     },
 
     async addGame(game, participants) {
-        const { data: g, error: ge } = await this.from('club_games').insert(game).select().single();
-        if (ge) { console.error('addGame:', ge); return null; }
-        if (participants && participants.length > 0) {
-            const parts = participants.map(p => ({ ...p, game_id: g.id }));
-            const { error: pe } = await this.from('club_game_participants').insert(parts);
-            if (pe) console.error('addGameParticipants:', pe);
-        }
-        return g;
+        let dbGame = null;
+        try {
+            const { data: g, error: ge } = await this.from('club_games').insert(game).select().single();
+            if (!ge && g) {
+                dbGame = g;
+                if (participants && participants.length > 0) {
+                    const parts = participants.map(p => ({ ...p, game_id: g.id }));
+                    await this.from('club_game_participants').insert(parts);
+                }
+            }
+        } catch(e) {}
+
+        const members = await this.getMembers();
+        const memMap = {};
+        members.forEach(m => memMap[m.id] = m);
+
+        const preparedParts = (participants || []).map(p => ({
+            ...p,
+            club_members: { name: memMap[p.member_id] ? memMap[p.member_id].name : '?' }
+        }));
+
+        const savedGame = dbGame ? { ...dbGame, club_game_participants: preparedParts } : { ...game, id: Date.now(), club_game_participants: preparedParts };
+
+        const localList = this._getLocalGames();
+        localList.unshift(savedGame);
+        this._saveLocalGames(localList);
+
+        return savedGame;
     },
 
     async updateGame(id, game, participants) {
-        const { data: g, error: ge } = await this.from('club_games').update(game).eq('id', id).select().single();
-        if (ge) { console.error('updateGame:', ge); return null; }
-        await this.from('club_game_participants').delete().eq('game_id', id);
-        if (participants && participants.length > 0) {
-            const parts = participants.map(p => ({ ...p, game_id: id }));
-            const { error: pe } = await this.from('club_game_participants').insert(parts);
-            if (pe) console.error('updateGameParticipants:', pe);
+        try {
+            await this.from('club_games').update(game).eq('id', id);
+            await this.from('club_game_participants').delete().eq('game_id', id);
+            if (participants && participants.length > 0) {
+                const parts = participants.map(p => ({ ...p, game_id: id }));
+                await this.from('club_game_participants').insert(parts);
+            }
+        } catch(e) {}
+
+        const members = await this.getMembers();
+        const memMap = {};
+        members.forEach(m => memMap[m.id] = m);
+
+        const preparedParts = (participants || []).map(p => ({
+            ...p,
+            club_members: { name: memMap[p.member_id] ? memMap[p.member_id].name : '?' }
+        }));
+
+        const localList = this._getLocalGames();
+        let updatedGame = { ...game, id: id, club_game_participants: preparedParts };
+        const idx = localList.findIndex(g => String(g.id) === String(id));
+        if (idx >= 0) {
+            localList[idx] = updatedGame;
+        } else {
+            localList.unshift(updatedGame);
         }
-        return g;
+        this._saveLocalGames(localList);
+
+        return updatedGame;
     },
 
     async deleteGame(id) {
-        const { error } = await this.from('club_games').delete().eq('id', id);
-        if (error) { console.error('deleteGame:', error); return false; }
+        try {
+            await this.from('club_games').delete().eq('id', id);
+        } catch(e) {}
+        let localList = this._getLocalGames();
+        localList = localList.filter(g => String(g.id) !== String(id));
+        this._saveLocalGames(localList);
         return true;
     },
 
     // ─── 모임: 회비 ───
 
+    _getLocalDues() {
+        try {
+            const raw = localStorage.getItem('club_local_dues_v1');
+            return raw ? JSON.parse(raw) : [];
+        } catch(e) { return []; }
+    },
+
+    _saveLocalDues(list) {
+        try {
+            localStorage.setItem('club_local_dues_v1', JSON.stringify(list));
+        } catch(e) {}
+    },
+
     async getDues(filters = {}) {
-        let q = this.from('club_dues').select('*, club_members(name)').order('dues_date', { ascending: false });
-        if (filters.member_id) q = q.eq('member_id', filters.member_id);
-        if (filters.startDate) q = q.gte('dues_date', filters.startDate);
-        if (filters.endDate) q = q.lte('dues_date', filters.endDate);
-        const { data, error } = await q;
-        if (error) { console.error('getDues:', error); return []; }
-        return data || [];
+        let dbList = [];
+        try {
+            let q = this.from('club_dues').select('*, club_members(name)').order('dues_date', { ascending: false });
+            if (filters.member_id) q = q.eq('member_id', filters.member_id);
+            if (filters.startDate) q = q.gte('dues_date', filters.startDate);
+            if (filters.endDate) q = q.lte('dues_date', filters.endDate);
+            const { data, error } = await q;
+            if (!error && data && data.length > 0) dbList = data;
+        } catch(e) {}
+
+        const localList = this._getLocalDues();
+        const combinedMap = {};
+        dbList.forEach(d => combinedMap[d.id] = d);
+        localList.forEach(d => {
+            if (filters.member_id && String(d.member_id) !== String(filters.member_id)) return;
+            combinedMap[d.id] = d;
+        });
+
+        return Object.values(combinedMap).sort((a, b) => new Date(b.dues_date) - new Date(a.dues_date));
     },
 
     async addDues(dues) {
-        let { data, error } = await this.from('club_dues').insert(dues).select('*, club_members(name)').single();
-        if (!data) data = { ...dues, id: Date.now() };
-        return data;
+        let dbDues = null;
+        try {
+            const { data, error } = await this.from('club_dues').insert(dues).select('*, club_members(name)').single();
+            if (!error && data) dbDues = data;
+        } catch(e) {}
+
+        const members = await this.getMembers();
+        const memObj = members.find(m => String(m.id) === String(dues.member_id));
+        const savedDues = dbDues || { ...dues, id: Date.now(), club_members: { name: memObj ? memObj.name : '기타' } };
+
+        const localList = this._getLocalDues();
+        localList.unshift(savedDues);
+        this._saveLocalDues(localList);
+
+        return savedDues;
     },
 
     async deleteDues(id) {
-        const { error } = await this.from('club_dues').delete().eq('id', id);
-        if (error) { console.error('deleteDues:', error); return false; }
+        try {
+            await this.from('club_dues').delete().eq('id', id);
+        } catch(e) {}
+        let localList = this._getLocalDues();
+        localList = localList.filter(d => String(d.id) !== String(id));
+        this._saveLocalDues(localList);
         return true;
     },
 
