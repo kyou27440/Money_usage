@@ -247,26 +247,50 @@
         padding: 10px !important;
     }
 
-    /* 모바일 게임 기록 헤더 및 버튼 100% 가독성 보장 */
+    /* 모바일 게임 기록 헤더 및 버튼 100% 가독성 보장 (가로이탈 0%) */
     .game-header-row {
         flex-direction: column !important;
         align-items: stretch !important;
         gap: 10px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .game-header-info {
+        width: 100% !important;
+        max-width: 100% !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        box-sizing: border-box !important;
     }
 
     .game-action-buttons {
         width: 100% !important;
+        max-width: 100% !important;
+        display: flex !important;
+        flex-direction: row !important;
         justify-content: space-between !important;
+        gap: 8px !important;
         padding-top: 8px !important;
         border-top: 1px dashed rgba(255, 255, 255, 0.15) !important;
+        box-sizing: border-box !important;
     }
 
     .game-action-buttons button {
-        flex: 1 !important;
-        justify-content: center !important;
+        flex: 1 1 0% !important;
+        width: 50% !important;
+        max-width: 50% !important;
         min-height: 42px !important;
-        font-size: 0.92rem !important;
+        justify-content: center !important;
+        font-size: 0.88rem !important;
+        font-weight: 700 !important;
         border-radius: 10px !important;
+        box-sizing: border-box !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
     }
 
     /* 카드 패딩 모바일 슬림화 */

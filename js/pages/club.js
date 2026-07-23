@@ -74,41 +74,43 @@ const ClubPage = {
                     const hasUnranked = parts.some(p => !p.ranking);
 
                     return `
-                    <div class="game-vertical-card" style="padding:16px;background:linear-gradient(135deg, rgba(30,41,59,0.9), rgba(15,23,42,0.95));border:1px solid rgba(99,102,241,0.28);border-radius:16px;box-shadow:0 4px 14px rgba(0,0,0,0.18);">
-                        <div class="game-header-row" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
-                            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:1;min-width:200px;">
-                                <span style="font-weight:700;font-size:1.05rem;color:#f8fafc;">📅 ${Utils.formatDateKR(g.game_date)}</span>
-                                <span style="font-size:0.88rem;color:#38bdf8;font-weight:500;">📍 ${Utils.escapeHtml(g.location)}</span>
+                    <div class="game-vertical-card" style="padding:14px;background:linear-gradient(135deg, rgba(30,41,59,0.9), rgba(15,23,42,0.95));border:1px solid rgba(99,102,241,0.28);border-radius:16px;box-shadow:0 4px 14px rgba(0,0,0,0.18);box-sizing:border-box;width:100%;max-width:100%;overflow:hidden;">
+                        <div class="game-header-row">
+                            <div class="game-header-info">
+                                <span style="font-weight:700;font-size:1rem;color:#f8fafc;">📅 ${Utils.formatDateKR(g.game_date)}</span>
+                                <span style="font-size:0.85rem;color:#38bdf8;font-weight:500;">📍 ${Utils.escapeHtml(g.location)}</span>
                                 ${calc ? `<span class="badge badge-income" style="font-size:0.75rem;padding:2px 8px;">📊 산출금 연동</span>` : ''}
                             </div>
-                            <div class="game-action-buttons" style="display:flex;gap:6px;align-items:center;">
-                                <button class="btn ${hasUnranked ? 'btn-emerald' : 'btn-primary'} btn-sm" onclick="ClubPage.openGameModal(${g.id})" style="padding:6px 14px;font-weight:600;">
+                            <div class="game-action-buttons">
+                                <button class="btn ${hasUnranked ? 'btn-emerald' : 'btn-primary'} btn-sm" onclick="ClubPage.openGameModal(${g.id})">
                                     ${hasUnranked ? '🏆 순위 입력' : '✏️ 기록 수정'}
                                 </button>
-                                <button class="btn btn-danger btn-sm" onclick="ClubPage.deleteGame(${g.id})" title="삭제" style="padding:6px 10px;">🗑️ 삭제</button>
+                                <button class="btn btn-danger btn-sm" onclick="ClubPage.deleteGame(${g.id})" title="삭제">🗑️ 삭제</button>
                             </div>
                         </div>
 
-                        <div style="display:flex;flex-direction:column;gap:8px;padding:12px;background:rgba(15,23,42,0.6);border-radius:12px;border:1px solid rgba(255,255,255,0.05);">
+                        <div style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;background:rgba(15,23,42,0.6);border-radius:12px;border:1px solid rgba(255,255,255,0.05);width:100%;box-sizing:border-box;">
                             ${parts.map(p => {
                                 const rc = p.ranking <= 3 && p.ranking > 0 ? `rank-${p.ranking}` : 'rank-other';
                                 let feeStr = '';
                                 if (calc && p.ranking && calc.rank_amounts && calc.rank_amounts[p.ranking - 1] !== undefined) {
-                                    feeStr = `<span style="margin-left:auto;font-size:0.88rem;color:#10b981;font-weight:700;">지불 회비: ${Utils.formatVND(calc.rank_amounts[p.ranking - 1])}</span>`;
+                                    feeStr = `<span style="font-size:0.82rem;color:#10b981;font-weight:700;flex-shrink:0;white-space:nowrap;">${Utils.formatVND(calc.rank_amounts[p.ranking - 1])}</span>`;
                                 }
                                 return `
-                                <div style="display:flex;align-items:center;gap:10px;font-size:0.92rem;">
-                                    <span class="ranking-badge ${rc}" style="font-weight:700;">${p.ranking || '-'}</span>
-                                    <span style="font-weight:600;color:#f8fafc;">${Utils.escapeHtml(p.club_members?.name || '?')}</span>
+                                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:0.88rem;width:100%;box-sizing:border-box;">
+                                    <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">
+                                        <span class="ranking-badge ${rc}" style="font-weight:700;flex-shrink:0;">${p.ranking || '-'}</span>
+                                        <span style="font-weight:600;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${Utils.escapeHtml(p.club_members?.name || '?')}</span>
+                                    </div>
                                     ${feeStr}
                                 </div>
                                 `;
                             }).join('')}
                         </div>
 
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);font-size:0.88rem;color:var(--text-muted);">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);font-size:0.85rem;color:var(--text-muted);flex-wrap:wrap;gap:6px;">
                             <span>총 게임 비용: <strong style="color:#38bdf8;">${calc ? Utils.formatVND(calc.total_cost) : Utils.formatVND(g.total_cost)}</strong></span>
-                            ${g.memo ? `<span>메모: ${Utils.escapeHtml(g.memo)}</span>` : ''}
+                            ${g.memo ? `<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;">메모: ${Utils.escapeHtml(g.memo)}</span>` : ''}
                         </div>
                     </div>
                     `;
