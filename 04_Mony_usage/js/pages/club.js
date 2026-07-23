@@ -834,29 +834,37 @@ const ClubPage = {
         if (dateInput) dateInput.addEventListener('change', (e) => this.calcState.date = e.target.value);
         if (memoInput) memoInput.addEventListener('input', (e) => this.calcState.memo = e.target.value);
 
-        countSelect.addEventListener('change', (e) => {
-            const count = Number(e.target.value);
-            this.calcState.count = count;
-            this.calcState.ratios = this.getDefaultRatios(count);
-            this.renderTab();
-        });
+        if (countSelect) {
+            countSelect.addEventListener('change', (e) => {
+                const count = Number(e.target.value);
+                this.calcState.count = count;
+                this.calcState.ratios = this.getDefaultRatios(count);
+                this.renderTab();
+            });
+        }
 
-        golfModeSelect.addEventListener('change', (e) => {
-            this.calcState.golfMode = e.target.value;
-            document.getElementById('lbl-golf-val').textContent = 
-                this.calcState.golfMode === 'per_person' ? '1인당 골프비 (VND)' : '총 골프비 (VND)';
-            this.updateCalcTable();
-        });
+        if (golfModeSelect) {
+            golfModeSelect.addEventListener('change', (e) => {
+                this.calcState.golfMode = e.target.value;
+                const lbl = document.getElementById('lbl-golf-val');
+                if (lbl) lbl.textContent = this.calcState.golfMode === 'per_person' ? '1인당 골프비 (VND)' : '총 골프비 (VND)';
+                this.updateCalcTable();
+            });
+        }
 
-        golfValInput.addEventListener('input', () => {
-            this.calcState.golfVal = Utils.parseAmount(golfValInput.value);
-            this.updateCalcTable();
-        });
+        if (golfValInput) {
+            golfValInput.addEventListener('input', () => {
+                this.calcState.golfVal = Utils.parseAmount(golfValInput.value);
+                this.updateCalcTable();
+            });
+        }
 
-        mealValInput.addEventListener('input', () => {
-            this.calcState.mealVal = Utils.parseAmount(mealValInput.value);
-            this.updateCalcTable();
-        });
+        if (mealValInput) {
+            mealValInput.addEventListener('input', () => {
+                this.calcState.mealVal = Utils.parseAmount(mealValInput.value);
+                this.updateCalcTable();
+            });
+        }
 
         // 프리셋 버튼 클릭 이벤트 바인딩
         document.querySelectorAll('.btn-preset-opt').forEach(btn => {
@@ -872,53 +880,64 @@ const ClubPage = {
             });
         });
 
-        document.getElementById('btn-save-calc').addEventListener('click', async () => {
-            const calcDate = document.getElementById('calc-date').value;
-            const calcMemo = document.getElementById('calc-memo').value.trim() || '스크린골프 모임';
-            if (!calcDate) { Utils.toast('날짜를 선택해주세요', 'error'); return; }
+        const btnSaveCalc = document.getElementById('btn-save-calc');
+        if (btnSaveCalc) {
+            btnSaveCalc.addEventListener('click', async () => {
+                const dateElem = document.getElementById('calc-date');
+                const memoElem = document.getElementById('calc-memo');
+                const calcDate = dateElem ? dateElem.value : Utils.today();
+                const calcMemo = memoElem ? memoElem.value.trim() : '스크린골프 모임';
+                if (!calcDate) { Utils.toast('날짜를 선택해주세요', 'error'); return; }
 
-            const { count, golfMode, golfVal, mealVal, ratios } = this.calcState;
-            const golfTotal = golfMode === 'per_person' ? golfVal * count : golfVal;
-            const mealTotal = mealVal;
-            const grandTotal = golfTotal + mealTotal;
+                const { count, golfMode, golfVal, mealVal, ratios } = this.calcState;
+                const golfTotal = golfMode === 'per_person' ? golfVal * count : golfVal;
+                const mealTotal = mealVal;
+                const grandTotal = golfTotal + mealTotal;
 
-            const rankAmounts = [];
-            for (let i = 0; i < count; i++) {
-                const r = (ratios[i] || 0) / 100;
-                const gAmt = Math.round(golfTotal * r);
-                const mAmt = Math.round(mealTotal * r);
-                rankAmounts.push(gAmt + mAmt);
-            }
+                const rankAmounts = [];
+                for (let i = 0; i < count; i++) {
+                    const r = (ratios[i] || 0) / 100;
+                    const gAmt = Math.round(golfTotal * r);
+                    const mAmt = Math.round(mealTotal * r);
+                    rankAmounts.push(gAmt + mAmt);
+                }
 
-            const item = {
-                calc_date: calcDate,
-                title: calcMemo,
-                player_count: count,
-                golf_mode: golfMode,
-                golf_val: golfVal,
-                meal_val: mealVal,
-                total_cost: grandTotal,
-                ratios: ratios,
-                rank_amounts: rankAmounts
-            };
+                const item = {
+                    calc_date: calcDate,
+                    title: calcMemo || '스크린골프 모임',
+                    player_count: count,
+                    golf_mode: golfMode,
+                    golf_val: golfVal,
+                    meal_val: mealVal,
+                    total_cost: grandTotal,
+                    ratios: ratios,
+                    rank_amounts: rankAmounts
+                };
 
-            await Store.saveCalcHistory(item);
-            Utils.toast(`[${calcDate}] 회비 산출 내역이 성공적으로 저장되었습니다!`, 'success');
-        });
-
-        document.getElementById('btn-history-calc').addEventListener('click', async () => {
-            this.openCalcHistoryModal();
-        });
-
-        document.getElementById('btn-copy-notice').addEventListener('click', () => {
-            const rawElem = document.getElementById('notice-raw-text');
-            const text = rawElem ? rawElem.value : '';
-            navigator.clipboard.writeText(text).then(() => {
-                Utils.toast('공지 문구가 클립보드에 복사되었습니다! 단톡방에 붙여넣으세요.', 'success');
-            }).catch(() => {
-                Utils.toast('복사 중 오류가 발생했습니다.', 'error');
+                await Store.saveCalcHistory(item);
+                Utils.toast(`[${calcDate}] 회비 산출 내역이 성공적으로 저장되었습니다!`, 'success');
             });
-        });
+        }
+
+        const btnHistoryCalc = document.getElementById('btn-history-calc');
+        if (btnHistoryCalc) {
+            btnHistoryCalc.addEventListener('click', async () => {
+                this.openCalcHistoryModal();
+            });
+        }
+
+        const btnCopyNotice = document.getElementById('btn-copy-notice');
+        if (btnCopyNotice) {
+            btnCopyNotice.addEventListener('click', () => {
+                const rawElem = document.getElementById('notice-raw-text');
+                const text = rawElem ? rawElem.value : '';
+                navigator.clipboard.writeText(text).then(() => {
+                    Utils.toast('공지 문구가 클립보드에 복사되었습니다! 단톡방에 붙여넣으세요.', 'success');
+                }).catch(() => {
+                    Utils.toast('복사 중 오류가 발생했습니다.', 'error');
+                });
+            });
+        }
     },
 
     async openCalcHistoryModal() {
