@@ -1,0 +1,8 @@
+# Submodule directories (not part of this project)
+Money_usage/
+desktop-tutorial/
+04_Mony_usage/Money_usage/
+
+# System files
+.DS_Store
+Thumbs.db
