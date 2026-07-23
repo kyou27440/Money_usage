@@ -88,25 +88,67 @@ const Store = {
 
     // ─── 모임: 멤버 ───
 
+    _formatMemberForSave(memberData) {
+        const copy = { ...memberData };
+        const nick = copy.nickname ? copy.nickname.trim() : '';
+        let userMemo = copy.memo ? copy.memo.replace(/\[nick:[^\]]*\]/g, '').trim() : '';
+        if (nick) {
+            copy.memo = `[nick:${nick}] ${userMemo}`.trim();
+        } else {
+            copy.memo = userMemo;
+        }
+        return copy;
+    },
+
+    _parseMember(member) {
+        if (!member) return member;
+        let nick = member.nickname || '';
+        let memo = member.memo || '';
+        if (!nick && memo && memo.includes('[nick:')) {
+            const match = memo.match(/\[nick:([^\]]+)\]/);
+            if (match) {
+                nick = match[1];
+                memo = memo.replace(/\[nick:[^\]]*\]/g, '').trim();
+            }
+        }
+        return { ...member, nickname: nick, memo: memo };
+    },
+
     async getMembers(statusFilter = null) {
         let q = supabase.from('club_members').select('*').order('name');
         if (statusFilter) q = q.eq('status', statusFilter);
         const { data, error } = await q;
         if (error) { console.error('getMembers:', error); return []; }
-        return data;
+        return (data || []).map(m => this._parseMember(m));
     },
 
     async addMember(member) {
-        const { data, error } = await supabase.from('club_members').insert(member).select().single();
+        const prepared = this._formatMemberForSave(member);
+        let { data, error } = await supabase.from('club_members').insert(prepared).select().single();
+        if (error && error.message && error.message.includes('nickname')) {
+            const copy = { ...prepared };
+            delete copy.nickname;
+            const res = await supabase.from('club_members').insert(copy).select().single();
+            data = res.data;
+            error = res.error;
+        }
         if (error) { console.error('addMember:', error); return null; }
-        return data;
+        return this._parseMember(data);
     },
 
     async updateMember(id, updates) {
         updates.updated_at = new Date().toISOString();
-        const { data, error } = await supabase.from('club_members').update(updates).eq('id', id).select().single();
+        const prepared = this._formatMemberForSave(updates);
+        let { data, error } = await supabase.from('club_members').update(prepared).eq('id', id).select().single();
+        if (error && error.message && error.message.includes('nickname')) {
+            const copy = { ...prepared };
+            delete copy.nickname;
+            const res = await supabase.from('club_members').update(copy).eq('id', id).select().single();
+            data = res.data;
+            error = res.error;
+        }
         if (error) { console.error('updateMember:', error); return null; }
-        return data;
+        return this._parseMember(data);
     },
 
     // ─── 모임: 게임 ───
@@ -128,6 +170,18 @@ const Store = {
             const parts = participants.map(p => ({ ...p, game_id: g.id }));
             const { error: pe } = await supabase.from('club_game_participants').insert(parts);
             if (pe) console.error('addGameParticipants:', pe);
+        }
+        return g;
+    },
+
+    async updateGame(id, game, participants) {
+        const { data: g, error: ge } = await supabase.from('club_games').update(game).eq('id', id).select().single();
+        if (ge) { console.error('updateGame:', ge); return null; }
+        await supabase.from('club_game_participants').delete().eq('game_id', id);
+        if (participants && participants.length > 0) {
+            const parts = participants.map(p => ({ ...p, game_id: id }));
+            const { error: pe } = await supabase.from('club_game_participants').insert(parts);
+            if (pe) console.error('updateGameParticipants:', pe);
         }
         return g;
     },
@@ -169,7 +223,9 @@ const Store = {
         (data || []).forEach(d => {
             const mid = d.member_id;
             if (!map[mid]) map[mid] = { member_id: mid, name: d.club_members?.name || '?', status: d.club_members?.status, balance: 0 };
-            map[mid].balance += d.type === 'deposit' ? Number(d.amount) : -Number(d.amount);
+            if (d.type === 'deposit') {
+                map[mid].balance += Number(d.amount);
+            }
         });
         return Object.values(map).sort((a, b) => a.name.localeCompare(b.name));
     },
@@ -267,5 +323,64 @@ const Store = {
         const map = {};
         (data || []).forEach(s => { map[s.key] = s.value; });
         return map;
+    },
+
+    // ─── 모임: 회비 산출 시트 이력 관리 ───
+
+    _getLocalCalcHistory() {
+        try {
+            const raw = localStorage.getItem('club_calc_history_v1');
+            return raw ? JSON.parse(raw) : [];
+        } catch(e) {
+            return [];
+        }
+    },
+
+    _saveLocalCalcHistory(list) {
+        try {
+            localStorage.setItem('club_calc_history_v1', JSON.stringify(list));
+        } catch(e) {}
+    },
+
+    async saveCalcHistory(calcItem) {
+        calcItem.created_at = new Date().toISOString();
+        calcItem.id = calcItem.id || 'calc_' + Date.now();
+
+        let localList = this._getLocalCalcHistory();
+        localList = localList.filter(item => item.calc_date !== calcItem.calc_date);
+        localList.unshift(calcItem);
+        this._saveLocalCalcHistory(localList);
+
+        try {
+            const { data, error } = await supabase.from('club_calc_history').upsert(calcItem).select().single();
+            if (!error && data) return data;
+        } catch(e) {}
+
+        return calcItem;
+    },
+
+    async getCalcHistoryList() {
+        try {
+            const { data, error } = await supabase.from('club_calc_history').select('*').order('calc_date', { ascending: false });
+            if (!error && data && data.length > 0) return data;
+        } catch(e) {}
+
+        return this._getLocalCalcHistory();
+    },
+
+    async getCalcHistoryByDate(dateStr) {
+        const list = await this.getCalcHistoryList();
+        return list.find(item => item.calc_date === dateStr) || null;
+    },
+
+    async deleteCalcHistory(id) {
+        let localList = this._getLocalCalcHistory();
+        localList = localList.filter(item => item.id !== id);
+        this._saveLocalCalcHistory(localList);
+
+        try {
+            await supabase.from('club_calc_history').delete().eq('id', id);
+        } catch(e) {}
+        return true;
     }
 };

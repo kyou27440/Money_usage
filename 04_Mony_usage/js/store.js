@@ -223,7 +223,9 @@ const Store = {
         (data || []).forEach(d => {
             const mid = d.member_id;
             if (!map[mid]) map[mid] = { member_id: mid, name: d.club_members?.name || '?', status: d.club_members?.status, balance: 0 };
-            map[mid].balance += d.type === 'deposit' ? Number(d.amount) : -Number(d.amount);
+            if (d.type === 'deposit') {
+                map[mid].balance += Number(d.amount);
+            }
         });
         return Object.values(map).sort((a, b) => a.name.localeCompare(b.name));
     },

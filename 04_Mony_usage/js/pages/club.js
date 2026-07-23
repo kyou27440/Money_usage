@@ -391,7 +391,7 @@ const ClubPage = {
     // ─── 회비 관리 탭 ───
     async renderDues(container) {
         const [balances, dues] = await Promise.all([Store.getDuesBalance(), Store.getDues({})]);
-        const totalBal = balances.reduce((s, b) => s + b.balance, 0);
+        const totalBal = await Store.getClubTotalBalance();
 
         container.innerHTML = `
             <div class="section-header">
@@ -400,34 +400,47 @@ const ClubPage = {
             </div>
             ${balances.length > 0 ? `<div class="summary-grid mb-lg">${balances.filter(b => b.status === 'active').map(b => `
                 <div class="summary-card ${b.balance >= 0 ? 'emerald' : 'rose'}">
-                    <div class="card-label">${Utils.escapeHtml(b.name)}</div>
+                    <div class="card-label">${Utils.escapeHtml(b.name)} (납부총액)</div>
                     <div class="card-value">${Utils.formatVND(b.balance)}</div>
                 </div>
             `).join('')}</div>` : ''}
 
             <div class="dues-vertical-list" style="display:flex;flex-direction:column;gap:10px;">
-                ${dues.length > 0 ? dues.map(d => `
-                    <div class="dues-vertical-item" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:linear-gradient(135deg, rgba(30,41,59,0.9), rgba(15,23,42,0.95));border:1px solid rgba(99,102,241,0.25);border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,0.15);">
-                        <div style="display:flex;align-items:center;gap:12px;">
-                            <span style="font-size:1.4rem;">${d.type === 'deposit' ? '📥' : '📤'}</span>
-                            <div>
-                                <div style="display:flex;align-items:center;gap:8px;">
-                                    <strong style="font-size:0.95rem;color:#f8fafc;">${Utils.escapeHtml(d.club_members?.name || '?')}</strong>
-                                    <span class="badge badge-${d.type === 'deposit' ? 'income' : 'expense'}" style="font-size:0.75rem;">${d.type === 'deposit' ? '입금' : '사용'}</span>
+                ${dues.length > 0 ? dues.map(d => {
+                    const isDeposit = d.type === 'deposit';
+                    const hasCategoryHeader = !isDeposit && d.memo && d.memo.startsWith('[');
+                    const titleText = isDeposit
+                        ? Utils.escapeHtml(d.club_members?.name || '?')
+                        : (hasCategoryHeader ? d.memo.split(']')[0] + ']' : '📤 출금 사용');
+                    const memoSubText = isDeposit
+                        ? (d.memo ? '• ' + Utils.escapeHtml(d.memo) : '')
+                        : (hasCategoryHeader ? (d.memo.split(']').slice(1).join(']').trim() ? '• ' + Utils.escapeHtml(d.memo.split(']').slice(1).join(']').trim()) : '') : (d.memo ? '• ' + Utils.escapeHtml(d.memo) : ''));
+
+                    return `
+                    <div class="dues-vertical-item" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:linear-gradient(135deg, rgba(30,41,59,0.9), rgba(15,23,42,0.95));border:1px solid rgba(99,102,241,0.25);border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,0.15);width:100%;box-sizing:border-box;">
+                        <div style="display:flex;align-items:center;gap:12px;min-width:0;flex:1;">
+                            <span style="font-size:1.4rem;flex-shrink:0;">${isDeposit ? '📥' : '📤'}</span>
+                            <div style="min-width:0;flex:1;">
+                                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                                    <strong style="font-size:0.95rem;color:#f8fafc;white-space:nowrap;">${titleText}</strong>
+                                    <span class="badge badge-${isDeposit ? 'income' : 'expense'}" style="font-size:0.75rem;padding:2px 8px;">
+                                        ${isDeposit ? '입금' : '출금 (사용)'}
+                                    </span>
                                 </div>
-                                <div style="font-size:0.8rem;color:var(--text-muted);margin-top:2px;">
-                                    ${Utils.formatDateKR(d.dues_date)} ${d.memo ? '• ' + Utils.escapeHtml(d.memo) : ''}
+                                <div style="font-size:0.8rem;color:var(--text-muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                    ${Utils.formatDateKR(d.dues_date)} ${memoSubText}
                                 </div>
                             </div>
                         </div>
-                        <div style="display:flex;align-items:center;gap:10px;">
-                            <span class="${d.type === 'deposit' ? 'text-emerald' : 'text-rose'}" style="font-weight:700;font-size:1.05rem;">
-                                ${d.type === 'deposit' ? '+' : '-'}${Utils.formatVND(d.amount)}
+                        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+                            <span class="${isDeposit ? 'text-emerald' : 'text-rose'}" style="font-weight:700;font-size:1.05rem;">
+                                ${isDeposit ? '+' : '-'}${Utils.formatVND(d.amount)}
                             </span>
                             <button class="btn btn-danger btn-sm" onclick="ClubPage.deleteDues(${d.id})" title="삭제">🗑️</button>
                         </div>
                     </div>
-                `).join('') : '<div class="empty-state"><div class="empty-icon">💵</div><p class="empty-text">회비 내역이 없습니다</p></div>'}
+                    `;
+                }).join('') : '<div class="empty-state"><div class="empty-icon">💵</div><p class="empty-text">회비 내역이 없습니다</p></div>'}
             </div>`;
 
         document.getElementById('btn-add-dues').addEventListener('click', () => this.openDuesModal());
@@ -435,35 +448,100 @@ const ClubPage = {
 
     async openDuesModal() {
         const members = await Store.getMembers('active');
-        Modal.open('회비 입출금', `
+        Modal.open('회비 입출금 등록', `
             <div class="form-grid">
-                <div class="form-group"><label>날짜</label><input type="date" id="dues-date" value="${Utils.today()}"></div>
                 <div class="form-group">
-                    <label>멤버</label>
-                    <select id="dues-member">${members.map(m => `<option value="${m.id}">${m.name}</option>`).join('')}</select>
+                    <label>날짜</label>
+                    <input type="date" id="dues-date" value="${Utils.today()}">
                 </div>
                 <div class="form-group">
                     <label>구분</label>
-                    <select id="dues-type"><option value="deposit">입금 (회비 납부)</option><option value="withdrawal">출금 (사용)</option></select>
+                    <select id="dues-type">
+                        <option value="deposit">📥 입금 (멤버 회비 납부)</option>
+                        <option value="withdrawal">📤 출금 (팀 지출/사용)</option>
+                    </select>
                 </div>
-                <div class="form-group"><label>금액 (VND)</label><input type="text" id="dues-amount" placeholder="예: 200000" inputmode="numeric"></div>
+                <div class="form-group" id="group-dues-member">
+                    <label>납부 멤버</label>
+                    <select id="dues-member">
+                        ${members.map(m => `<option value="${m.id}">${Utils.escapeHtml(m.name)}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="form-group" id="group-dues-category" style="display:none;">
+                    <label>출금 항목 (사용 용도)</label>
+                    <select id="dues-category">
+                        <option value="⛳ 골프비">⛳ 골프비 (스크린/라운딩 비용)</option>
+                        <option value="🍲 식사비">🍲 식사비 (회식/식대 비용)</option>
+                        <option value="📦 기타">📦 기타 (소모품/행사 비용)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>금액 (VND)</label>
+                    <input type="text" id="dues-amount" placeholder="예: 200000" inputmode="numeric">
+                </div>
             </div>
-            <div class="form-group mt-md"><label>메모</label><input type="text" id="dues-memo" placeholder="메모 (선택)"></div>
-        `, `<button class="btn btn-ghost" onclick="Modal.close()">취소</button><button class="btn btn-primary" id="btn-save-dues">저장</button>`);
+            <div class="form-group mt-md">
+                <label>상세 메모</label>
+                <input type="text" id="dues-memo" placeholder="예: 에코파크 결제 / 점심 회식">
+            </div>
+        `, `
+            <button class="btn btn-ghost" onclick="Modal.close()">취소</button>
+            <button class="btn btn-primary" id="btn-save-dues">저장</button>
+        `);
+
+        const typeSelect = document.getElementById('dues-type');
+        const memberGroup = document.getElementById('group-dues-member');
+        const categoryGroup = document.getElementById('group-dues-category');
+
+        const updateFormState = () => {
+            if (typeSelect.value === 'withdrawal') {
+                memberGroup.style.display = 'none';
+                categoryGroup.style.display = 'block';
+            } else {
+                memberGroup.style.display = 'block';
+                categoryGroup.style.display = 'none';
+            }
+        };
+
+        typeSelect.addEventListener('change', updateFormState);
+        updateFormState();
 
         document.getElementById('btn-save-dues').addEventListener('click', async () => {
+            const typeVal = typeSelect.value;
+            const amount = Utils.parseAmount(document.getElementById('dues-amount').value);
+            const rawMemo = document.getElementById('dues-memo').value.trim();
+
+            if (!document.getElementById('dues-date').value || !amount || amount <= 0) {
+                Utils.toast('날짜와 금액을 올바르게 입력해주세요', 'error');
+                return;
+            }
+
+            let memberId, memo;
+            if (typeVal === 'deposit') {
+                memberId = Number(document.getElementById('dues-member').value);
+                memo = rawMemo;
+            } else {
+                const category = document.getElementById('dues-category').value;
+                memberId = members.length > 0 ? members[0].id : 1;
+                memo = rawMemo ? `[${category}] ${rawMemo}` : `[${category}]`;
+            }
+
             const data = {
                 dues_date: document.getElementById('dues-date').value,
-                member_id: Number(document.getElementById('dues-member').value),
-                type: document.getElementById('dues-type').value,
-                amount: Utils.parseAmount(document.getElementById('dues-amount').value),
-                memo: document.getElementById('dues-memo').value.trim()
+                member_id: memberId,
+                type: typeVal,
+                amount: amount,
+                memo: memo
             };
-            if (!data.dues_date || !data.amount || data.amount <= 0) { Utils.toast('날짜와 금액을 입력해주세요', 'error'); return; }
+
             const result = await Store.addDues(data);
-            if (result) { Utils.toast('회비가 기록되었습니다', 'success'); Modal.close(); this.renderTab(); }
+            if (result) {
+                Utils.toast(typeVal === 'deposit' ? '회비 입금이 기록되었습니다!' : '출금 지출이 기록되었습니다!', 'success');
+                Modal.close();
+                this.renderTab();
+            }
         });
-    },
+    }
 
     async deleteDues(id) {
         const ok = await Modal.confirm('회비 삭제', '이 회비 내역을 삭제하시겠습니까?');
