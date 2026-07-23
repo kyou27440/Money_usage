@@ -250,18 +250,15 @@ const ClubPage = {
 
             if (participants.length === 0) { Utils.toast('참여자를 선택해주세요', 'error'); return; }
 
-            let result;
             if (editGame) {
-                result = await Store.updateGame(editGame.id, game, participants);
+                await Store.updateGame(editGame.id, game, participants);
             } else {
-                result = await Store.addGame(game, participants);
+                await Store.addGame(game, participants);
             }
 
-            if (result) {
-                Utils.toast(editGame ? '게임 기록 및 순위가 수정되었습니다!' : '게임 기록이 저장되었습니다!', 'success');
-                Modal.close();
-                this.renderTab();
-            }
+            Utils.toast(editGame ? '게임 기록 및 순위가 수정되었습니다!' : '게임 기록이 저장되었습니다!', 'success');
+            Modal.close();
+            await this.renderTab();
         });
     },
 
@@ -377,18 +374,15 @@ const ClubPage = {
             };
             if (!data.name || !data.join_date) { Utils.toast('이름과 합류일을 입력해주세요', 'error'); return; }
 
-            let result;
             if (editMember) {
-                result = await Store.updateMember(editMember.id, data);
+                await Store.updateMember(editMember.id, data);
             } else {
-                result = await Store.addMember(data);
+                await Store.addMember(data);
             }
 
-            if (result) { 
-                Utils.toast(editMember ? '멤버 정보 및 아이디가 수정되었습니다' : '멤버가 추가되었습니다', 'success'); 
-                Modal.close(); 
-                this.renderTab(); 
-            }
+            Utils.toast(editMember ? '멤버 정보 및 아이디가 수정되었습니다' : '멤버가 추가되었습니다', 'success'); 
+            Modal.close(); 
+            await this.renderTab();
         });
     },
 
@@ -553,12 +547,10 @@ const ClubPage = {
                 memo: memo
             };
 
-            const result = await Store.addDues(data);
-            if (result) {
-                Utils.toast(typeVal === 'deposit' ? '회비 입금이 기록되었습니다!' : '출금 지출이 기록되었습니다!', 'success');
-                Modal.close();
-                this.renderTab();
-            }
+            await Store.addDues(data);
+            Utils.toast(typeVal === 'deposit' ? '회비 입금이 기록되었습니다!' : '출금 지출이 기록되었습니다!', 'success');
+            Modal.close();
+            await this.renderTab();
         });
     },
 

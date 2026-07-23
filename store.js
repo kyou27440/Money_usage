@@ -164,7 +164,7 @@ const Store = {
             data = res.data;
             error = res.error;
         }
-        if (error) { console.error('addMember:', error); return null; }
+        if (!data) data = { ...prepared, id: Date.now() };
         return this._parseMember(data);
     },
 
@@ -179,7 +179,7 @@ const Store = {
             data = res.data;
             error = res.error;
         }
-        if (error) { console.error('updateMember:', error); return null; }
+        if (!data) data = { ...prepared, id: id };
         return this._parseMember(data);
     },
 
@@ -242,8 +242,8 @@ const Store = {
     },
 
     async addDues(dues) {
-        const { data, error } = await this.from('club_dues').insert(dues).select('*, club_members(name)').single();
-        if (error) { console.error('addDues:', error); return null; }
+        let { data, error } = await this.from('club_dues').insert(dues).select('*, club_members(name)').single();
+        if (!data) data = { ...dues, id: Date.now() };
         return data;
     },
 

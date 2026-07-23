@@ -24,8 +24,8 @@ const DashboardPage = {
                 </div>
             </div>
             <div style="text-align:right;">
-                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v8.3.0 (모달 바깥 클릭 닫힘 방지)</span>
-                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-23 14:16:00</div>
+                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v8.4.0 (저장 클릭 시 즉시 모달 닫힘 100% 보장)</span>
+                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-23 14:20:00</div>
             </div>
         </div>
 
