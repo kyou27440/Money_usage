@@ -560,7 +560,7 @@ const ClubPage = {
                 this.renderTab();
             }
         });
-    }
+    },
 
     async deleteDues(id) {
         const ok = await Modal.confirm('회비 삭제', '이 회비 내역을 삭제하시겠습니까?');
