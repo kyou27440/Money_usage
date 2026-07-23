@@ -19,13 +19,13 @@ const DashboardPage = {
             <div style="display:flex;align-items:center;gap:12px;">
                 <span style="font-size:1.4rem;">🎯</span>
                 <div>
-                    <div style="font-weight:700;font-size:0.98rem;color:var(--text-primary);">모바일 게임기록 수정 완비 & 세로모드 고정 및 통계 차트 슬림화</div>
-                    <div style="font-size:0.82rem;color:var(--text-muted);">모바일 전용 100% 가로 전폭 조작 버튼 / 세로 1열 스트림 고정 / 자산 통계 슬림화 완료</div>
+                    <div style="font-weight:700;font-size:0.98rem;color:var(--text-primary);">회비 출금 항목(골프비/식사비/기타) 분리 & 모바일 전폭 완비</div>
+                    <div style="font-size:0.82rem;color:var(--text-muted);">회비 출금 시 멤버 대신 골프비/식사비/기타 카테고리 기록 및 가로이탈 0% 최적화</div>
                 </div>
             </div>
             <div style="text-align:right;">
-                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v6.3.0 (모바일 최적화)</span>
-                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-23 12:40:00</div>
+                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v6.6.0 (모바일 최적화)</span>
+                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-23 13:05:00</div>
             </div>
         </div>
 
