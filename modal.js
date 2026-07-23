@@ -17,9 +17,7 @@ const Modal = {
         this.closeBtn = document.getElementById('modal-close');
 
         this.closeBtn.addEventListener('click', () => this.close());
-        this.overlay.addEventListener('click', (e) => {
-            if (e.target === this.overlay) this.close();
-        });
+        // 바깥 배경 클릭 시 모달이 닫혀서 입력 데이터가 유실되는 것 방지 (X 및 취소 버튼으로만 닫힘)
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && !this.overlay.classList.contains('hidden')) this.close();
         });
