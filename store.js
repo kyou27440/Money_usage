@@ -430,6 +430,4 @@ const Store = {
         } catch(e) {}
         return true;
     }
-        return true;
-    }
 };
