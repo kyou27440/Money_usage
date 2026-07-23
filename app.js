@@ -45,9 +45,11 @@
 
     // ── 화면 세로 모드 고정 지원 (Screen Orientation Lock) ──
     const lockPortrait = () => {
-        if (window.screen && window.screen.orientation && window.screen.orientation.lock) {
-            window.screen.orientation.lock('portrait').catch(() => {});
-        }
+        try {
+            if (window.screen && window.screen.orientation && window.screen.orientation.lock) {
+                window.screen.orientation.lock('portrait').catch(() => {});
+            }
+        } catch (e) {}
     };
     window.addEventListener('load', lockPortrait);
     document.addEventListener('touchstart', lockPortrait, { once: true });

@@ -77,6 +77,10 @@
     --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
+.hidden {
+    display: none !important;
+}
+
 /* --- Reset & Base --- */
 *, *::before, *::after {
     margin: 0;
