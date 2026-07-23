@@ -75,17 +75,17 @@ const ClubPage = {
 
                     return `
                     <div class="game-vertical-card" style="padding:16px;background:linear-gradient(135deg, rgba(30,41,59,0.9), rgba(15,23,42,0.95));border:1px solid rgba(99,102,241,0.28);border-radius:16px;box-shadow:0 4px 14px rgba(0,0,0,0.18);">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
-                            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                        <div class="game-header-row" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+                            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:1;min-width:200px;">
                                 <span style="font-weight:700;font-size:1.05rem;color:#f8fafc;">📅 ${Utils.formatDateKR(g.game_date)}</span>
                                 <span style="font-size:0.88rem;color:#38bdf8;font-weight:500;">📍 ${Utils.escapeHtml(g.location)}</span>
                                 ${calc ? `<span class="badge badge-income" style="font-size:0.75rem;padding:2px 8px;">📊 산출금 연동</span>` : ''}
                             </div>
-                            <div style="display:flex;gap:6px;align-items:center;">
-                                <button class="btn ${hasUnranked ? 'btn-emerald' : 'btn-ghost'} btn-sm" onclick="ClubPage.openGameModal(${g.id})">
-                                    ${hasUnranked ? '🏆 순위 입력' : '✏️ 수정'}
+                            <div class="game-action-buttons" style="display:flex;gap:6px;align-items:center;">
+                                <button class="btn ${hasUnranked ? 'btn-emerald' : 'btn-primary'} btn-sm" onclick="ClubPage.openGameModal(${g.id})" style="padding:6px 14px;font-weight:600;">
+                                    ${hasUnranked ? '🏆 순위 입력' : '✏️ 기록 수정'}
                                 </button>
-                                <button class="btn btn-danger btn-sm" onclick="ClubPage.deleteGame(${g.id})" title="삭제">🗑️</button>
+                                <button class="btn btn-danger btn-sm" onclick="ClubPage.deleteGame(${g.id})" title="삭제" style="padding:6px 10px;">🗑️ 삭제</button>
                             </div>
                         </div>
 

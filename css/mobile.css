@@ -247,6 +247,28 @@
         padding: 10px !important;
     }
 
+    /* 모바일 게임 기록 헤더 및 버튼 100% 가독성 보장 */
+    .game-header-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+
+    .game-action-buttons {
+        width: 100% !important;
+        justify-content: space-between !important;
+        padding-top: 8px !important;
+        border-top: 1px dashed rgba(255, 255, 255, 0.15) !important;
+    }
+
+    .game-action-buttons button {
+        flex: 1 !important;
+        justify-content: center !important;
+        min-height: 42px !important;
+        font-size: 0.92rem !important;
+        border-radius: 10px !important;
+    }
+
     /* 카드 패딩 모바일 슬림화 */
     .card {
         padding: 12px 10px !important;
@@ -264,6 +286,19 @@
 
     .modal-overlay {
         padding: 10px;
+    }
+}
+
+/* 세로 모드 강제 최적화 (Landscape 회전 시 세로 1열 스트림 유지) */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+    .page-container {
+        padding: 8px 12px 70px 12px !important;
+    }
+    .bottom-nav {
+        height: 52px !important;
+    }
+    .bottom-nav-inner {
+        height: 52px !important;
     }
 }
 

@@ -107,8 +107,14 @@
     color: var(--accent-violet);
 }
 
-/* --- 모바일 반응형 --- */
+/* --- 모바일 세로 화면(Portrait Mode) 전용 최적화 --- */
 @media (max-width: 768px) {
+    html, body {
+        overflow-x: hidden !important;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+
     /* FAB 표시 */
     .fab {
         display: flex;
@@ -130,12 +136,12 @@
 
     /* 하단 네비게이션 높이만큼 콘텐츠 여백 */
     .page-container {
-        padding-bottom: 80px;
+        padding: 12px 14px 84px 14px;
     }
 
     /* 페이지 헤더 슬림화 */
     .page-header {
-        padding: var(--space-sm) var(--space-md);
+        padding: 10px 14px;
         min-height: 48px;
     }
 
@@ -143,27 +149,75 @@
         font-size: 1rem;
     }
 
-    /* 서머리 카드 모바일 최적화 */
+    /* 모바일 세로 폼 및 그리드 1열 수직 배치 */
+    .form-grid,
+    .dashboard-grid,
+    .club-members-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    /* 모바일 텍스트 입력창 자동 확대 방지 (폰트 16px 이상) */
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+        font-size: 16px !important;
+        min-height: 44px;
+    }
+
+    /* 서머리 카드 모바일 세로 2열 콤팩트 배치 */
+    .summary-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .summary-card {
+        padding: 12px 14px;
+    }
+
     .summary-card .card-value {
-        font-size: 1.2rem;
+        font-size: 1.15rem;
     }
 
     .summary-card .card-label {
         font-size: 0.75rem;
     }
 
-    /* 테이블 가로 스크롤 */
+    /* 테이블 가로 스크롤 보호 */
     .table-wrapper {
-        margin: 0 calc(-1 * var(--space-md));
+        margin: 0 calc(-1 * 14px);
         border-radius: 0;
         border-left: none;
         border-right: none;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
-    /* 필터 바 세로 배치 */
+    /* 모임 상단 탭 스크롤 스무스화 */
+    .tabs {
+        display: flex;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 6px;
+        margin-bottom: 14px;
+        border-bottom: 1px solid var(--border-color);
+        gap: 6px;
+    }
+
+    .tab-btn {
+        flex: 0 0 auto;
+        padding: 8px 14px;
+        font-size: 0.88rem;
+    }
+
+    /* 필터 바 세로 수직 배치 */
     .filter-bar {
         flex-direction: column;
         align-items: stretch;
+        gap: 8px;
     }
 
     .filter-bar select,
@@ -171,36 +225,84 @@
         min-width: 100%;
     }
 
-    /* 섹션 헤더 */
+    /* 섹션 헤더 세로 배치 */
     .section-header {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
     }
 
-    /* 대시보드 그리드 1열 */
-    .dashboard-grid {
-        grid-template-columns: 1fr;
+    /* 산출 시트 정산 카드 그리드 1열 수직 강제 적용 (잘림 방지) */
+    .rank-fee-grid,
+    .ranking-vertical-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
     }
 
-    /* 차트 높이 조정 */
-    .chart-container {
-        max-height: 240px;
+    /* 요약 배너 2열 모바일 콤팩트 */
+    .fresh-summary-banner {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+        padding: 10px !important;
     }
 
-    /* 모달 전체화면 */
+    /* 모바일 게임 기록 헤더 및 버튼 100% 가독성 보장 */
+    .game-header-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+
+    .game-action-buttons {
+        width: 100% !important;
+        justify-content: space-between !important;
+        padding-top: 8px !important;
+        border-top: 1px dashed rgba(255, 255, 255, 0.15) !important;
+    }
+
+    .game-action-buttons button {
+        flex: 1 !important;
+        justify-content: center !important;
+        min-height: 42px !important;
+        font-size: 0.92rem !important;
+        border-radius: 10px !important;
+    }
+
+    /* 카드 패딩 모바일 슬림화 */
+    .card {
+        padding: 12px 10px !important;
+        border-radius: 12px !important;
+    }
+
+    /* 모달 모바일 세로 전체화면 팝업 */
     .modal-content {
         max-width: 100%;
-        max-height: 95vh;
-        margin: var(--space-sm);
-        border-radius: var(--radius-lg);
+        max-height: 90vh;
+        margin: 10px;
+        border-radius: 16px;
+        padding: 16px;
     }
 
     .modal-overlay {
-        padding: var(--space-sm);
+        padding: 10px;
     }
 }
 
-/* 아주 작은 화면 (360px 이하) */
+/* 세로 모드 강제 최적화 (Landscape 회전 시 세로 1열 스트림 유지) */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+    .page-container {
+        padding: 8px 12px 70px 12px !important;
+    }
+    .bottom-nav {
+        height: 52px !important;
+    }
+    .bottom-nav-inner {
+        height: 52px !important;
+    }
+}
+
+/* 아주 작은 세로 화면 (360px 이하) */
 @media (max-width: 360px) {
     .bottom-nav-item .bnav-text {
         font-size: 0.62rem;
@@ -208,11 +310,11 @@
 
     .summary-grid {
         grid-template-columns: 1fr 1fr;
-        gap: var(--space-sm);
+        gap: 8px;
     }
 
     .summary-card {
-        padding: var(--space-md);
+        padding: 10px;
     }
 
     .summary-card .card-value {

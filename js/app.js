@@ -43,6 +43,15 @@
     // ── 모달 초기화 ──
     Modal.init();
 
+    // ── 화면 세로 모드 고정 지원 (Screen Orientation Lock) ──
+    const lockPortrait = () => {
+        if (window.screen && window.screen.orientation && window.screen.orientation.lock) {
+            window.screen.orientation.lock('portrait').catch(() => {});
+        }
+    };
+    window.addEventListener('load', lockPortrait);
+    document.addEventListener('touchstart', lockPortrait, { once: true });
+
     // ── PWA 서비스 워커 등록 (모바일 앱 설치 지원) ──
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {

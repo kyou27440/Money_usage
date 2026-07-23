@@ -43,30 +43,43 @@
     // ── 모달 초기화 ──
     Modal.init();
 
+    // ── 화면 세로 모드 고정 지원 (Screen Orientation Lock) ──
+    const lockPortrait = () => {
+        if (window.screen && window.screen.orientation && window.screen.orientation.lock) {
+            window.screen.orientation.lock('portrait').catch(() => {});
+        }
+    };
+    window.addEventListener('load', lockPortrait);
+    document.addEventListener('touchstart', lockPortrait, { once: true });
+
+    // ── PWA 서비스 워커 등록 (모바일 앱 설치 지원) ──
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('✅ PWA ServiceWorker 등록 성공:', reg.scope))
+                .catch(err => console.warn('⚠️ PWA ServiceWorker 등록 실패:', err));
+        });
+    }
+
     // ── 라우터 초기화 ──
     Router.init();
 
-    // ── 모바일 하단 탭 네비게이션 ──
+    // ── 모바일 하단 탭 네비게이션 (3개 핵심 탭 + 대시보드) ──
     document.querySelectorAll('.bottom-nav-item').forEach(item => {
-        item.addEventListener('click', (e) => {
+        item.addEventListener('click', async (e) => {
             e.preventDefault();
             const page = item.dataset.page;
-            // 하단 탭 활성 상태 동기화
+            const tab = item.dataset.tab;
+            
             document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.remove('active'));
             item.classList.add('active');
-            Router.navigate(page);
+            
+            await Router.navigate(page);
+            if (page === 'club' && tab) {
+                ClubPage.switchTab(tab);
+            }
         });
     });
-
-    // 라우터 네비게이션 시 하단 탭도 동기화
-    const originalNavigate = Router.navigate.bind(Router);
-    Router.navigate = async function(pageName) {
-        await originalNavigate(pageName);
-        // 하단 탭 활성 상태 동기화
-        document.querySelectorAll('.bottom-nav-item').forEach(b => {
-            b.classList.toggle('active', b.dataset.page === pageName);
-        });
-    };
 
     // ── FAB: 빠른 입력 버튼 ──
     const fab = document.getElementById('fab-quick-add');
