@@ -39,13 +39,19 @@ const ClubPage = {
 
     async renderTab() {
         const container = document.getElementById('club-tab-content');
+        if (!container) return;
         container.innerHTML = '<div class="text-center text-muted" style="padding:40px">⏳ 로딩 중...</div>';
-        switch (this.currentTab) {
-            case 'games': await this.renderGames(container); break;
-            case 'members': await this.renderMembers(container); break;
-            case 'dues': await this.renderDues(container); break;
-            case 'ranking': await this.renderRanking(container); break;
-            case 'calculator': await this.renderCalculator(container); break;
+        try {
+            switch (this.currentTab) {
+                case 'games': await this.renderGames(container); break;
+                case 'members': await this.renderMembers(container); break;
+                case 'dues': await this.renderDues(container); break;
+                case 'ranking': await this.renderRanking(container); break;
+                case 'calculator': await this.renderCalculator(container); break;
+            }
+        } catch (err) {
+            console.error('renderTab error:', err);
+            container.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p class="empty-text">페이지 탭 로딩 중 문제가 발생했습니다.</p><p class="text-muted" style="font-size:0.85rem;">${Utils.escapeHtml(err.message || String(err))}</p></div>`;
         }
     },
 

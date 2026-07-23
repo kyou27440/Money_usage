@@ -154,13 +154,18 @@ const Store = {
     // ─── 모임: 게임 ───
 
     async getGames(filters = {}) {
-        let q = supabase.from('club_games').select('*, club_game_participants(*, club_members(name))').order('game_date', { ascending: false });
-        if (filters.startDate) q = q.gte('game_date', filters.startDate);
-        if (filters.endDate) q = q.lte('game_date', filters.endDate);
-        if (filters.limit) q = q.limit(filters.limit);
-        const { data, error } = await q;
-        if (error) { console.error('getGames:', error); return []; }
-        return data;
+        try {
+            let q = supabase.from('club_games').select('*, club_game_participants(*, club_members(name))').order('game_date', { ascending: false });
+            if (filters.startDate) q = q.gte('game_date', filters.startDate);
+            if (filters.endDate) q = q.lte('game_date', filters.endDate);
+            if (filters.limit) q = q.limit(filters.limit);
+            const { data, error } = await q;
+            if (error) { console.error('getGames:', error); return []; }
+            return data || [];
+        } catch(e) {
+            console.error('getGames exception:', e);
+            return [];
+        }
     },
 
     async addGame(game, participants) {
