@@ -72,8 +72,8 @@ const SettingsPage = {
             <h3 class="settings-section-title">ℹ️ 정보</h3>
             <div class="setting-row">
                 <div class="setting-label">
-                    <span class="label-title">Mony Dashboard</span>
-                    <span class="label-desc">v1.0 • 개인 자산 및 회사 모임(총무) 통합 대시보드</span>
+                    <span class="label-title">04_DY_GOLF</span>
+                    <span class="label-desc">v1.0 • 회사 모임 &amp; 골프 회비 관리 대시보드</span>
                 </div>
                 <div class="setting-control text-muted">
                     GitHub Pages + Supabase

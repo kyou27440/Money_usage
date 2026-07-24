@@ -26,7 +26,7 @@ G:\AI\
 ├── 01_ProjectA\          ← 과제 A (독립 앱)
 ├── 02_ProjectB\          ← 과제 B (독립 앱)
 ├── 03_ProjectC\          ← 과제 C (독립 앱)
-└── 04_Mony_usage\        ← 본 과제 (자산/모임 대시보드)
+└── 04_DY_GOLF\           ← 본 과제 (모임 & 골프 관리 대시보드)
     ├── PROGRESS_TRACKER.md
     ├── SYSTEM_DESIGN.md
     ├── AI_PROMPT_GUIDE.md
@@ -47,7 +47,7 @@ G:\AI\
   ```
 - **DB 기반 격리**: 프로젝트별 별도 DB 파일 또는 Schema 사용
   ```
-  04_Mony_usage/data/mony_usage.sqlite
+  04_DY_GOLF/data/mony_usage.sqlite
   ```
 
 #### 방법 3: 실행 포트 격리
@@ -64,7 +64,7 @@ G:\AI\
 
 | 항목 | 적용 값 |
 |---|---|
-| 프로젝트 디렉토리 | `g:\AI\04_Mony_usage` |
+| 프로젝트 디렉토리 | `g:\AI\04_DY_GOLF` |
 | 개발 서버 포트 | `5174` |
 | LocalStorage 접두사 | `mony_usage_` |
 | DB 파일 (옵션) | `data/mony_usage.sqlite` |

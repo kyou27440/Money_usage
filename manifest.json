@@ -1,6 +1,6 @@
 {
-  "name": "회사 모임 장부 & 회비 관리",
-  "short_name": "모임장부",
+  "name": "04_DY_GOLF - 회사 모임 & 골프 회비 관리",
+  "short_name": "04_DY_GOLF",
   "description": "스크린골프 모임 게임 기록 및 회비 산출 연동 모바일 세로 전용 앱",
   "start_url": "./index.html",
   "display": "standalone",

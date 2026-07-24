@@ -1,23 +1,38 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#0d1220"/>
-      <stop offset="100%" style="stop-color:#111827"/>
+      <stop offset="0%" style="stop-color:#064e3b"/>
+      <stop offset="100%" style="stop-color:#022c22"/>
     </linearGradient>
     <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#6366f1"/>
-      <stop offset="100%" style="stop-color:#8b5cf6"/>
+      <stop offset="0%" style="stop-color:#10b981"/>
+      <stop offset="100%" style="stop-color:#34d399"/>
+    </linearGradient>
+    <linearGradient id="flag" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ef4444"/>
+      <stop offset="100%" style="stop-color:#f87171"/>
     </linearGradient>
     <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:0.3"/>
-      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:0"/>
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#34d399;stop-opacity:0"/>
     </linearGradient>
   </defs>
   <rect width="512" height="512" rx="96" fill="url(#bg)"/>
-  <circle cx="256" cy="240" r="120" fill="url(#glow)"/>
-  <circle cx="256" cy="240" r="88" fill="none" stroke="url(#accent)" stroke-width="6"/>
-  <text x="256" y="265" text-anchor="middle" font-family="Arial,sans-serif" font-size="96" font-weight="bold" fill="url(#accent)">₫</text>
-  <polyline points="160,360 210,340 260,310 310,330 360,290" fill="none" stroke="#10b981" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="360" cy="290" r="6" fill="#10b981"/>
-  <text x="256" y="440" text-anchor="middle" font-family="Arial,sans-serif" font-size="42" font-weight="700" fill="#f0f2f5" letter-spacing="4">MONY</text>
+  <circle cx="256" cy="220" r="130" fill="url(#glow)"/>
+  <circle cx="256" cy="220" r="95" fill="none" stroke="url(#accent)" stroke-width="6"/>
+  
+  <!-- Golf Flag Pin -->
+  <line x1="256" y1="290" x2="256" y2="140" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/>
+  <path d="M 256 140 L 320 170 L 256 200 Z" fill="url(#flag)"/>
+  <ellipse cx="256" cy="290" rx="35" ry="10" fill="#065f46"/>
+
+  <!-- Golf Ball -->
+  <circle cx="215" cy="280" r="20" fill="#ffffff"/>
+  <circle cx="210" cy="276" r="2" fill="#cbd5e1"/>
+  <circle cx="220" cy="278" r="2" fill="#cbd5e1"/>
+  <circle cx="214" cy="284" r="2" fill="#cbd5e1"/>
+
+  <!-- App Title -->
+  <text x="256" y="420" text-anchor="middle" font-family="Inter, sans-serif" font-size="44" font-weight="900" fill="#f8fafc" letter-spacing="2">04_DY_GOLF</text>
+  <text x="256" y="455" text-anchor="middle" font-family="Inter, sans-serif" font-size="20" font-weight="600" fill="#34d399" letter-spacing="4">GOLF &amp; CLUB DUES</text>
 </svg>

@@ -49,7 +49,7 @@ STEP 6: 접속 테스트 🎉
 
 ```sql
 -- =============================================
--- Mony Dashboard - 전체 DB 스키마
+-- 04_DY_GOLF - 전체 DB 스키마
 -- Supabase (PostgreSQL) 용
 -- =============================================
 
@@ -239,15 +239,15 @@ const SUPABASE_ANON_KEY = '여기에-anon-public-key-붙여넣기';
    - "Add a README file" 체크 ❌ (체크하지 마세요)
 4. **"Create repository"** 클릭
 5. **"uploading an existing file"** 링크 클릭
-6. 프로젝트 폴더(`04_Mony_usage`) 안의 **모든 파일**을 드래그앤드롭
+6. 프로젝트 폴더(`04_DY_GOLF`) 안의 **모든 파일**을 드래그앤드롭
 7. **"Commit changes"** 클릭
 
 ### 방법 B: VS Code에서 Git 사용 (Git 설치 필요)
 ```bash
-cd g:\AI\04_Mony_usage
+cd g:\AI\04_DY_GOLF
 git init
 git add .
-git commit -m "Initial commit: Mony Dashboard"
+git commit -m "Initial commit: 04_DY_GOLF"
 git remote add origin https://github.com/YOUR_USERNAME/mony-dashboard.git
 git push -u origin main
 ```
@@ -264,7 +264,7 @@ git push -u origin main
 6. 1~2분 후 URL 생성:
 
 ```
-https://YOUR_USERNAME.github.io/mony-dashboard/
+https://kyou27440.github.io/DY_GOLF/
 ```
 
 ---

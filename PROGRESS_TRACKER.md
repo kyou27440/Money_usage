@@ -9,9 +9,9 @@
 
 | 항목 | 내용 |
 |---|---|
-| **프로젝트명** | 개인 자산 및 회사 모임(총무) 통합 대시보드 |
+| **프로젝트명** | 04_DY_GOLF (회사 모임 & 골프 회비 관리 대시보드) |
 | **기본 화폐** | VND (베트남 동) |
-| **프로젝트 경로** | `g:\AI\04_Mony_usage` |
+| **프로젝트 경로** | `g:\AI\04_DY_GOLF` |
 | **기술 스택** | HTML/CSS/JS (Vanilla) + Supabase (PostgreSQL) + GitHub Pages |
 | **모바일 지원** | PWA (Progressive Web App) |
 | **개발 서버 포트** | 5174 |
@@ -41,7 +41,7 @@
 ## 📁 파일 구조
 
 ```
-g:\AI\04_Mony_usage\
+g:\AI\04_DY_GOLF\
 ├── index.html              ← 메인 HTML (PWA 메타 포함)
 ├── manifest.json           ← PWA 매니페스트
 ├── sw.js                   ← Service Worker (오프라인 캐싱)
@@ -124,8 +124,8 @@ g:\AI\04_Mony_usage\
 ## ⚙️ 새 AI 세션에서 이어서 작업하기
 
 ```
-나는 '개인 자산 및 회사 모임(총무) 통합 대시보드' 프로젝트를 진행 중이야.
-프로젝트 경로: g:\AI\04_Mony_usage
+나는 '04_DY_GOLF (회사 모임 & 골프 회비 관리 대시보드)' 프로젝트를 진행 중이야.
+프로젝트 경로: g:\AI\04_DY_GOLF
 
 아래 파일들을 순서대로 읽고, 현재 진행 상황을 요약한 뒤 이어서 작업해줘:
 1. PROGRESS_TRACKER.md (진행 현황 파악)

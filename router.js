@@ -27,11 +27,11 @@ const Router = {
 
         // 페이지 타이틀 업데이트
         const titles = {
-            dashboard: '📊 대시보드',
-            personal: '💰 개인 가계부',
-            club: '⛳ 회사 모임 관리',
-            exchange: '💱 환전 관리',
-            analytics: '📈 자산 현황 및 통계',
+            dashboard: '⛳ DY_GOLF 대시보드',
+            personal: '⛳ 모임 회비 장부',
+            club: '⛳ 모임 & 골프 관리',
+            exchange: '💱 환전 현황',
+            analytics: '📈 회비 & 성적 통계',
             settings: '⚙️ 설정'
         };
         document.getElementById('page-title').textContent = titles[pageName] || pageName;

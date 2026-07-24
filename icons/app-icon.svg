@@ -1,20 +1,49 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#4f46e5" />
-      <stop offset="50%" stop-color="#6366f1" />
-      <stop offset="100%" stop-color="#8b5cf6" />
+      <stop offset="0%" stop-color="#064e3b" />
+      <stop offset="50%" stop-color="#047857" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+    <linearGradient id="flagGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444" />
+      <stop offset="100%" stop-color="#f87171" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24" />
+      <stop offset="100%" stop-color="#f59e0b" />
     </linearGradient>
     <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.35"/>
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.4"/>
     </filter>
   </defs>
-  <!-- App Icon Card Body -->
+  <!-- Card Background -->
   <rect width="512" height="512" rx="115" fill="url(#bgGrad)" />
-  <!-- Inner Subtle Border -->
-  <rect x="12" y="12" width="488" height="488" rx="103" fill="none" stroke="#ffffff" stroke-opacity="0.2" stroke-width="6"/>
-  <!-- Golf & Dues Emblem -->
-  <g filter="url(#glow)" transform="translate(256, 256) scale(2.2)">
-    <text text-anchor="middle" dominant-baseline="central" font-size="90" y="4">⛳</text>
+  <rect x="12" y="12" width="488" height="488" rx="103" fill="none" stroke="#34d399" stroke-opacity="0.3" stroke-width="4"/>
+
+  <!-- Golf Green Hole & Flag Graphic -->
+  <g filter="url(#glow)">
+    <!-- Golf Hole Ellipse -->
+    <ellipse cx="256" cy="360" rx="90" ry="24" fill="#022c22" opacity="0.8"/>
+    <ellipse cx="256" cy="360" rx="45" ry="12" fill="#0f172a"/>
+    
+    <!-- Flag Pole -->
+    <line x1="256" y1="360" x2="256" y2="120" stroke="#f8fafc" stroke-width="10" stroke-linecap="round"/>
+    
+    <!-- Flag -->
+    <path d="M 256 120 L 360 160 L 256 200 Z" fill="url(#flagGrad)"/>
+    
+    <!-- Golf Ball -->
+    <circle cx="200" cy="350" r="28" fill="#ffffff"/>
+    <circle cx="200" cy="350" r="28" fill="none" stroke="#e2e8f0" stroke-width="2"/>
+    <!-- Golf Ball Dimples -->
+    <circle cx="192" cy="344" r="3" fill="#cbd5e1"/>
+    <circle cx="206" cy="346" r="3" fill="#cbd5e1"/>
+    <circle cx="198" cy="356" r="3" fill="#cbd5e1"/>
+    <circle cx="208" cy="355" r="2" fill="#cbd5e1"/>
+    <circle cx="190" cy="352" r="2" fill="#cbd5e1"/>
+    
+    <!-- Star Accent -->
+    <path d="M 256 102 L 260 112 L 270 112 L 262 118 L 265 128 L 256 122 L 247 128 L 250 118 L 242 112 L 252 112 Z" fill="url(#goldGrad)"/>
   </g>
 </svg>
