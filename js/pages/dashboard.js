@@ -15,17 +15,17 @@ const DashboardPage = {
         const recentGames = games.slice(0, 3);
 
         return `
-        <div class="version-banner" style="background: linear-gradient(135deg, rgba(99,102,241,0.18), rgba(16,185,129,0.18)); border: 1px solid rgba(99,102,241,0.35); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+        <div class="version-banner" style="background: linear-gradient(135deg, rgba(16,185,129,0.18), rgba(6,78,59,0.25)); border: 1px solid rgba(16,185,129,0.35); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
             <div style="display:flex;align-items:center;gap:12px;">
-                <span style="font-size:1.4rem;">🎯</span>
+                <span style="font-size:1.4rem;">⛳</span>
                 <div>
-                    <div style="font-weight:700;font-size:0.98rem;color:var(--text-primary);">회비 출금 항목(골프비/식사비/기타) 분리 & 모바일 전폭 완비</div>
-                    <div style="font-size:0.82rem;color:var(--text-muted);">회비 출금 시 멤버 대신 골프비/식사비/기타 카테고리 기록 및 가로이탈 0% 최적화</div>
+                    <div style="font-weight:700;font-size:0.98rem;color:var(--text-primary);">04_DY_GOLF - 스크린골프 모임 게임 기록 &amp; 회비 산출 완비</div>
+                    <div style="font-size:0.82rem;color:var(--text-muted);">모임 멤버 관리, 회비 입출금 기록, 스크린골프 순위 산출 최적화</div>
                 </div>
             </div>
             <div style="text-align:right;">
-                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v8.6.0 (멤버/게임/회비 듀얼 영구 저장 완비)</span>
-                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-23 14:45:00</div>
+                <span class="badge badge-income" style="font-size:0.85rem;padding:4px 10px;font-weight:700;">v9.0.0 (04_DY_GOLF 전용 완비)</span>
+                <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-top:4px;">🕒 2026-07-24 13:38:00</div>
             </div>
         </div>
 
